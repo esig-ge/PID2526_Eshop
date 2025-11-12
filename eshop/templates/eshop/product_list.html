@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Eshop !</title>
+</head>
+<body>
+<header>
+    <h1>Bienvenue dans notre site de vente en ligne !</h1>
+    <p>Ici, vous trouverez tout ce que vous avez besoin!</p>
+</header>
+
+<section>
+    <h1>Tout nos produits</h1>
+    {% for prod in products %}
+        <h3 href="{% url "product_details.html" pk=prod.pk %}"> {{ prod.name }} </h3>
+
+        {% if prod.availability == True %}
+            <p> {{ prod.price }}</p>
+        {% else %}
+            <p>Victime de son succès...</p>
+        {% endif %}
+    {% endfor %}
+</section>
+
+
+
+</body>
+</html>
