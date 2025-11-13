@@ -25,6 +25,9 @@ class Product(models.Model):
         self.availability = av
         self.save()
 
-    def __str__(self):
-        return self.name
 
+class Review(models.Model):
+    user_mail = models.EmailField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    review = models.TextField()
+    publish_date = models.DateTimeField(default=timezone.now)

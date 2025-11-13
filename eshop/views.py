@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from eshop.models import Product
+from eshop.models import Product, Review
 
 from django.shortcuts import render, get_object_or_404
 # Create your views here.
@@ -13,7 +13,8 @@ def product_list(request):
 
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, 'eshop/product_details.html', {'product': product})
+    reviews = Review.objects.filter(product=product)
+    return render(request, 'eshop/product_details.html', {'product': product, 'reviews': reviews})
 
 
 
