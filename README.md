@@ -12,3 +12,4 @@ Tout les détailles produits present sur ce site ont été récuperer depuis Dig
 
 AIDE MEMOIRE :
 Forcer le remplacement du git sur pythonAnywhere : pa_autoconfigure_django.py --python=3.10 https://github.com/esig-ge/lien-github-cible --nuke
+Creation de nouvelle administrateur : python manage.py createsuperuser
