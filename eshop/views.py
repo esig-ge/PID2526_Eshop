@@ -61,8 +61,7 @@ def product_search(request):
         query = request.GET.get("q", "")
 
         if query:
-         resultats = Product.objects.filter(name__icontains=query).values(
-            'id', 'name', 'price')
+         resultats = Product.objects.filter(name__icontains=query).values('id', 'name', 'price')
 
         else:
             resultats = Product.objects.none()

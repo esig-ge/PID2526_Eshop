@@ -1,6 +1,7 @@
 
 // Generé par IA, modifier extensivement pour repondre a mes besoins
 document.getElementById("searchInput").addEventListener("input",  async function () {
+
     const query = this.value.trim();
     const resultsContainer = document.getElementById("results");
 
@@ -22,11 +23,10 @@ document.getElementById("searchInput").addEventListener("input",  async function
 
         const data = await response.json();
 
-        if (data.results.length < 0) {
+        if (data.results.length === 0) {
             const li = document.createElement("li");
             li.textContent = "Aucun produit trouvé";
-            li.style.padding = "8px";
-            li.style.color = "#999";
+            li.style.color = "red";
             resultsContainer.appendChild(li);
             return;
         }
@@ -38,9 +38,6 @@ document.getElementById("searchInput").addEventListener("input",  async function
             a.href = `/get/${item.id}/`;
             a.textContent = `${item.name} — ${item.price} €`;
 
-            // Hover effect
-            a.addEventListener("mouseenter", () => a.style.backgroundColor = "#f8f8f8");
-            a.addEventListener("mouseleave", () => a.style.backgroundColor = "");
 
             li.appendChild(a);
             resultsContainer.appendChild(li);
