@@ -1,9 +1,13 @@
+
+// Generé par IA, en se basant sur ma page product_search_sync.js crée antérieurement
 document.getElementById("synced_input_button").addEventListener("click", function (event) {
 
 
     const query = document.getElementById("searchInput").value.trim();
     const resultsContainer = document.getElementById("results");
+
     resultsContainer.innerHTML = "";
+
 
     if (query.length < 1) {
         return;
@@ -12,7 +16,7 @@ document.getElementById("synced_input_button").addEventListener("click", functio
     try {
         const xhr = new XMLHttpRequest();
         xhr.open(
-            "GET", `/not_ajax_search?q=${encodeURIComponent(query)}`, false);
+            "GET", `/ajax_search?q=${encodeURIComponent(query)}`, false);
         xhr.send(null);
 
         if (xhr.status !== 200) {
@@ -44,7 +48,7 @@ document.getElementById("synced_input_button").addEventListener("click", functio
         console.error(err);
         const li = document.createElement("li");
         li.textContent = "Erreur de recherche";
-        li.style.color = "blue";
+        li.style.color = "red";
         resultsContainer.appendChild(li);
     }
 });

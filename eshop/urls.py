@@ -9,5 +9,4 @@ urlpatterns = [
     # Supprimer un avis
     path('review/<int:pk>/delete/', views.review_delete, name='review_delete'),
     path("ajax_search", views.product_search, name="ajax_search"),
-    path("not_ajax_search", views.product_search, name="not_ajax_search"),
 ]
