@@ -36,3 +36,5 @@ class Review(models.Model):
 
     def __str__(self):
         return f"avis {self.pk} pour {self.product}"
+
+

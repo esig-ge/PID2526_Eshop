@@ -71,4 +71,3 @@ def product_search(request):
 
     results_list = list(resultats)
     return JsonResponse({"results": results_list})
-
