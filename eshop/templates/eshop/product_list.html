@@ -4,15 +4,18 @@
 
 <div class="container my-5">
     <h2 class="text-center mb-5">Tous nos produits</h2>
+        <div>
+            <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+            <p>Résultats : </p>
+            <ul id="results"></ul>
 
-    <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-    <button id="synced_input_button">version Synchrone</button>
+            <input type="text" id="searchInput-ai" placeholder="Demandez a l'ia!">
+            <a href="{{ ai_choice }}" id="ai_choice">Click here to see our ai's best choice for you</a>
+        </div>
 
-    <p>Résultats : </p>
-    <ul id="results"></ul>
 
     <script src="{% static 'JavaScript/product_search.js' %}"></script>
-    <script src="{% static 'JavaScript/product_search_sync.js' %}"></script>
+    <script src="{% static 'JavaScript/ai_search.js' %}"></script>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for prod in products %}
