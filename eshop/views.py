@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from eshop.models import Product, Review
 from .forms import PostReview
-
+from .models import Product
 from django.shortcuts import render, get_object_or_404
 # Create your views here.
 
@@ -71,3 +71,31 @@ def product_search(request):
 
     results_list = list(resultats)
     return JsonResponse({"results": results_list})
+
+# modif meg
+def product_list(request):
+    products = Product.objects.all()
+
+    # Récupération des paramètres
+    query = request.GET.get('q')
+    category = request.GET.get('cat')
+    stock_only = request.GET.get('stock')
+    tri = request.GET.get('tri')
+
+    # Filtrage
+    if query:
+        products = products.filter(name__icontains=query)
+
+    if category:
+        products = products.filter(category__slug=category)  # Assure-toi d'avoir un champ category dans ton modèle
+
+    if stock_only == 'on':
+        products = products.filter(availability=True)
+
+    # Tri final
+    if tri == 'asc':
+        products = products.order_by('price')
+    elif tri == 'desc':
+        products = products.order_by('-price')
+
+    return render(request, 'eshop/votre_page.html', {'products': products})
