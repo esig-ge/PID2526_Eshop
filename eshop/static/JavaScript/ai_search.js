@@ -1,34 +1,29 @@
 
-// Generé par IA, en se basant sur ma page product_search_sync.js crée antérieurement
-document.getElementById("synced_input_button").addEventListener("click", function (event) {
+// Generé par IA, modifier extensivement pour repondre a mes besoins
+document.getElementById("searchInput-ai").addEventListener("input",  async function () {
 
 
-    const query = document.getElementById("searchInput").value.trim();
+    const query = this.value.trim();
     const resultsContainer = document.getElementById("results");
 
     resultsContainer.innerHTML = "";
 
-
     if (query.length < 1) {
+        const li = document.createElement("li");
+        resultsContainer.clear
         return;
     }
 
     try {
-        const xhr = new XMLHttpRequest();
-        xhr.open(
-            "GET", `/ajax_search?q=${encodeURIComponent(query)}`, false);
-        xhr.send(null);
+        const response =  await fetch(`/ai_search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error("Erreur serveur");
 
-        if (xhr.status !== 200) {
-            throw new Error("Erreur serveur");
-        }
-
-        const data = JSON.parse(xhr.responseText);
+        const data = await response.json();
 
         if (data.results.length === 0) {
             const li = document.createElement("li");
             li.textContent = "Aucun produit trouvé";
-            li.style.color = "blue";
+            li.style.color = "red";
             resultsContainer.appendChild(li);
             return;
         }
@@ -39,6 +34,7 @@ document.getElementById("synced_input_button").addEventListener("click", functio
 
             a.href = `/get/${item.id}/`;
             a.textContent = `${item.name} — ${item.price} €`;
+
 
             li.appendChild(a);
             resultsContainer.appendChild(li);
@@ -52,3 +48,4 @@ document.getElementById("synced_input_button").addEventListener("click", functio
         resultsContainer.appendChild(li);
     }
 });
+
