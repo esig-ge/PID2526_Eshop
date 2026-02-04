@@ -1,7 +1,4 @@
-
-// Generé par IA, modifier extensivement pour repondre a mes besoins
-document.getElementById("searchInput").addEventListener("input",  async function () {
-
+document.getElementById("searchInput").addEventListener("input", async function () {
 
     const query = this.value.trim();
     const resultsContainer = document.getElementById("results");
@@ -9,13 +6,11 @@ document.getElementById("searchInput").addEventListener("input",  async function
     resultsContainer.innerHTML = "";
 
     if (query.length < 1) {
-        const li = document.createElement("li");
-        resultsContainer.clear
-        return;
+        return;   // on sort directement, pas besoin de créer un <li> vide
     }
 
     try {
-        const response =  await fetch(`/ajax_search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`/ajax_search?q=${encodeURIComponent(query)}`);
         if (!response.ok) throw new Error("Erreur serveur");
 
         const data = await response.json();
@@ -33,8 +28,15 @@ document.getElementById("searchInput").addEventListener("input",  async function
             const a = document.createElement("a");
 
             a.href = `/get/${item.id}/`;
-            a.textContent = `${item.name} — ${item.price} €`;
 
+            // Correction principale : on protège contre les valeurs undefined
+            const name = item.name || "Produit sans nom";
+            const price = item.price !== undefined ? item.price : "";
+
+            // On n’affiche le tiret et le prix que si le prix existe
+            a.textContent = price 
+                ? `${name} — ${price} €`
+                : name;
 
             li.appendChild(a);
             resultsContainer.appendChild(li);
@@ -48,4 +50,3 @@ document.getElementById("searchInput").addEventListener("input",  async function
         resultsContainer.appendChild(li);
     }
 });
-

@@ -1,1 +1,1 @@
-api_key_antho = "test1212"
+api_key_osman = "983444d7d206415d8a7c89ef1f8800ba.niiEniKgrN3cgVTTEr2SS3Zw"
