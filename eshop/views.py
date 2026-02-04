@@ -1,13 +1,11 @@
 from json import JSONDecodeError
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from eshop.models import Product, Review
+from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
-
-from django.shortcuts import render, get_object_or_404
-# Create your views here.
-
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 
 def product_list(request):
@@ -71,3 +69,56 @@ def product_search(request):
 
     results_list = list(resultats)
     return JsonResponse({"results": results_list})
+
+@login_required
+def cart_add(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    # On récupère ou on crée le panier de l'utilisateur
+    cart, created = Cart.objects.get_or_create(owner=request.user)
+
+    # On cherche si le produit est déjà dans le panier
+    cart_item, item_created = CartItem.objects.get_or_create(
+        product=product, 
+        cart=cart,
+        defaults={'quantity': 1} # Si on le crée, on met 1 par défaut
+    )
+
+    # Si l'objet existait déjà, on incrémente juste la quantité
+    if not item_created:
+        cart_item.quantity += 1
+        cart_item.save()
+
+    return redirect('cart_detail')
+
+@login_required
+def cart_remove(request, product_id):
+    cart = get_object_or_404(Cart, owner=request.user)
+    product = get_object_or_404(Product, id=product_id)
+    
+    try:
+        cart_item = CartItem.objects.get(product=product, cart=cart)
+        if cart_item.quantity > 1:
+            cart_item.quantity -= 1
+            cart_item.save()
+        else:
+            cart_item.delete()
+    except CartItem.DoesNotExist:
+        pass # Le produit n'était pas dans le panier, on ne fait rien
+
+    return redirect('cart_detail')
+
+@login_required
+def cart_detail(request):
+    cart, created = Cart.objects.get_or_create(owner=request.user)
+
+    cart_items = CartItem.objects.filter(cart=cart)
+
+    total = sum(item.sub_total() for item in cart_items)
+
+    return render(request, 'eshop/cart_detail.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'total': total  
+        
+    })
