@@ -6,6 +6,10 @@ from eshop.models import Product, Review
 from .forms import PostReview
 from .models import Product
 from django.shortcuts import render, get_object_or_404
+import google.generativeai as genai
+from django.db.models import Q
+
+import os
 # Create your views here.
 
 
@@ -72,30 +76,30 @@ def product_search(request):
     results_list = list(resultats)
     return JsonResponse({"results": results_list})
 
-# modif meg
-def product_list(request):
-    products = Product.objects.all()
+# --------------------------------- modif meg------------------------
 
-    # Récupération des paramètres
+
+def product_list(request):
+    # 1. On récupère tous les produits au départ
+    products = Product.objects.all()
+    # 2. Récupération des paramètres du formulaire (GET)
     query = request.GET.get('q')
     category = request.GET.get('cat')
-    stock_only = request.GET.get('stock')
-    tri = request.GET.get('tri')
+    sort_order = request.GET.get('tri')
+    in_stock = request.GET.get('stock')
 
-    # Filtrage
+    # 3. Filtrage par mot-clé (Recherche intelligente)
     if query:
         products = products.filter(name__icontains=query)
-
+    # 4. Filtrage par catégorie
     if category:
-        products = products.filter(category__slug=category)  # Assure-toi d'avoir un champ category dans ton modèle
-
-    if stock_only == 'on':
+        products = products.filter(Q(name__icontains=category) | Q(description__icontains=category))    # 5. Filtrage par stock
+    if in_stock == 'on':
         products = products.filter(availability=True)
-
-    # Tri final
-    if tri == 'asc':
+    # 6. Tri par prix (Croissant / Décroissant)
+    if sort_order == 'asc':
         products = products.order_by('price')
-    elif tri == 'desc':
+    elif sort_order == 'desc':
         products = products.order_by('-price')
 
-    return render(request, 'eshop/votre_page.html', {'products': products})
+    return render(request, 'eshop/product_list.html', {'products': products})

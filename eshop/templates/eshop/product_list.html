@@ -15,7 +15,10 @@
             <option value="">Toutes les catégories</option>
             <option value="accessoires" {% if request.GET.cat == 'accessoires' %}selected{% endif %}>Accessoires</option>
             <option value="composants" {% if request.GET.cat == 'composants' %}selected{% endif %}>Composants</option>
-            <option value="peripheriques" {% if request.GET.cat == 'peripheriques' %}selected{% endif %}>Périphériques</option>
+            <option value="telephone" {% if request.GET.cat == 'telephone' %}selected{% endif %}>telephone</option>
+            <option value="ordinateur" {% if request.GET.cat == 'ordinateur' %}selected{% endif %}>ordinateur</option>
+            <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>tablette</option>
+
         </select>
     </div>
 
