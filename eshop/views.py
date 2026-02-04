@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
+from django.shortcuts import render, get_object_or_404
+# Create your views here.
+
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
@@ -122,3 +125,25 @@ def cart_detail(request):
         'total': total  
         
     })
+
+def ai_search(request):
+    try:
+        query = request.GET.get("q", "")
+
+        client = genai.Client()
+
+        ai_choice = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents="Give back a single product link (found on digitec.ch) that answers the best to this request :" + query,
+        )
+
+    except JSONDecodeError:
+        ai_choice = Product.objects.none()
+
+    ai_products_list = list(ai_choice)
+    return JsonResponse({"results": ai_products_list})
+
+def comparer(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    return render(request, 'eshop/comparer.html', {'product': product})

@@ -5,14 +5,24 @@
 <div class="container my-5">
     <h2 class="text-center mb-5">Tous nos produits</h2>
 
-    <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-    <button id="synced_input_button">version Synchrone</button>
-
-    <p>Résultats : </p>
-    <ul id="results"></ul>
+    <div class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un produit...">
+            </div>
+            <div class="col-md-6">
+                <input type="text" id="searchInput-ai" class="form-control" placeholder="Demandez à l'IA !">
+            </div>
+        </div>
+        <div id="ai-results" class="mt-2">
+            <a href="{{ ai_choice }}" id="ai_choice" class="text-muted small">Cliquez ici pour voir le meilleur choix de
+                l'IA</a>
+        </div>
+        <ul id="results" class="list-unstyled mt-2"></ul>
+    </div>
 
     <script src="{% static 'JavaScript/product_search.js' %}"></script>
-    <script src="{% static 'JavaScript/product_search_sync.js' %}"></script>
+    <script src="{% static 'JavaScript/ai_search.js' %}"></script>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for prod in products %}
@@ -20,7 +30,7 @@
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title mb-3">
-                        <a href="#" class="text-decoration-none text-dark fw-bold">
+                        <a href="{% url 'product_details' prod.pk %}" class="text-decoration-none text-dark fw-bold">
                             {{ prod.name }}
                         </a>
                     </h5>
@@ -28,13 +38,22 @@
                     <div class="mt-auto">
                         {% if prod.availability %}
                         <p class="fs-3 text-success fw-bold mb-2">{{ prod.price }} .- CHF</p>
-                        <span class="badge bg-success fs-6">En stock ()</span>
-                        <form action="{% url 'cart_add' prod.id %}" method="post" class="mt-2 text-end">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="fa fa-cart-plus"></i> Ajouter au panier
-                            </button>
-                        </form>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success fs-6">En stock</span>
+
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'comparer' prod.pk %}"
+                                    class="btn btn-outline-primary btn-sm">Comparer</a>
+
+                                <form action="{% url 'cart_add' prod.id %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-cart-plus"></i> Panier
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                         {% else %}
                         <p class="text-muted fst-italic mb-2">Victime de son succès...</p>
                         <span class="badge bg-danger fs-6">Rupture</span>
