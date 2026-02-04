@@ -32,7 +32,10 @@
                         <div class="mt-auto">
                             {% if prod.availability %}
                                 <p class="fs-3 text-success fw-bold mb-2">{{ prod.price }} .- CHF</p>
-                                <span class="badge bg-success fs-6">En stock ()</span>
+                                <div class="mt-2 d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success fs-6">En stock ()</span>
+                                    <a href="{% url 'comparer' prod.pk %}" class="btn btn-outline-primary btn-sm">Comparer</a>
+                                </div>
                             {% else %}
                                 <p class="text-muted fst-italic mb-2">Victime de son succès...</p>
                                 <span class="badge bg-danger fs-6">Rupture</span>
