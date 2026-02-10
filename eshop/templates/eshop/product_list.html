@@ -4,91 +4,129 @@
 <div class="container my-5">
     <h2 class="text-center mb-5">Tous nos produits</h2>
 
-    <!-- Row for the two search sections -->
-    <div class="row justify-content-center g-4">
-
-        <!-- AI Search Column -->
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white text-center fw-bold">
-                    Recherche IA
-                </div>
-                <div class="card-body">
-                    <div class="input-group">
-                        <input type="text" id="searchInput-ai" class="form-control" placeholder="Que cherchez-vous ?">
-                        <button class="btn btn-primary" type="button" id="ai_query_button">Demander à l'IA</button>
-                        <button class="btn btn-outline-secondary" type="button" id="clear-ai-search">
-                            <i class="bi bi-x-lg">⌫</i>
-                        </button>
-                    </div>
-                    <div id="ai_choice" class="mt-3"></div> <!-- Results will appear here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Regular Search Column -->
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-secondary text-white text-center fw-bold">
-                    Recherche Classique
-                </div>
-                <div class="card-body">
-                    <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un produit...">
-                        <button class="btn btn-outline-secondary" type="button" id="clear-normal-search">
-                            <i class="bi bi-x-lg">⌫</i>
-                        </button>
-                    </div>
-                    <ul id="results" class="list-unstyled mt-3"></ul> <!-- Results will appear here -->
-                </div>
-            </div>
-        </div>
-
+    <div class="row mt-3 pr-5">
+        <input type="text" id="searchInput-ai" placeholder="Que cherchez vous?">
+        <input class="text-white btn bg-primary mt-1" type="button" id="ai_query_button" value="Demander a l'ia">
+        <p href="{{ ai_choice }}" id="ai_choice"></p>
     </div>
 </div>
 
-<script src="{% static 'JavaScript/product_search.js' %}"></script>
-<script src="{% static 'JavaScript/ai_search.js' %}"></script>
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    {% for prod in products %}
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title mb-3">
-                    <a href="{% url 'product_details' prod.pk %}" class="text-decoration-none text-dark fw-bold">
-                        {{ prod.name }}
-                    </a>
-                </h5>
+<!-- Row for the two search sections -->
+<div class="row justify-content-center g-4">
+    <!-- AI Search Column -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white text-center fw-bold">
+                Recherche IA
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="searchInput-ai" class="form-control" placeholder="Que cherchez-vous ?">
+                    <button class="btn btn-primary" type="button" id="ai_query_button">Demander à l'IA</button>
+                    <button class="btn btn-outline-secondary" type="button" id="clear-ai-search">
+                        <i class="bi bi-x-lg">⌫</i>
+                    </button>
+                </div>
+                <div id="ai_choice" class="mt-3"></div> <!-- Results will appear here -->
+            </div>
+        </div>
+    </div>
 
-                <div class="mt-auto">
-                    {% if prod.availability %}
-                    <p class="fs-3 text-success fw-bold mb-2">{{ prod.price|floatformat:2 }} .- CHF</p>
+    <!-- Regular Search Column -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-secondary text-white text-center fw-bold">
+                Recherche Classique
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un produit...">
+                    <button class="btn btn-outline-secondary" type="button" id="clear-normal-search">
+                        <i class="bi bi-x-lg">⌫</i>
+                    </button>
+                </div>
+                <ul id="results" class="list-unstyled mt-3"></ul> <!-- Results will appear here -->
+            </div>
+        </div>
+    </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-success fs-6">En stock</span>
+</div>
+<!-- modif meg -->
+<div class="container mb-4">
+    <form method="GET" action="{% url 'product_list' %}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Rechercher un produit</label>
+            <input type="text" name="q" id="searchInput" class="form-control" placeholder="Nom du produit..."
+                value="{{ request.GET.q }}">
+        </div>
 
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'comparer' prod.pk %}" class="btn btn-outline-primary btn-sm">Comparer</a>
+</div>
+<div class="col-md-3">
+    <label class="form-label fw-bold">Trier par prix</label>
+    <select name="tri" class="form-select" onchange="this.form.submit()">
+        <option value="">Par défaut</option>
+        <option value="asc" {% if request.GET.tri=='asc' %}selected{% endif %}>Prix : Croissant</option>
+        <option value="desc" {% if request.GET.tri=='desc' %}selected{% endif %}>Prix : Décroissant</option>
+    </select>
+</div>
+</form>
+<ul id="results" class="list-unstyled mt-2"></ul>
 
-                            <form action="{% url 'cart_add' prod.id %}" method="post" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-cart-plus"></i> Panier
-                                </button>
-                            </form>
+
+</div>
+<div class="col-md-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch" onchange="this.form.submit()"
+            {% if request.GET.rupture=='on' %}checked{% endif %}>
+        <label class="form-check-label fw-bold" for="ruptureSwitch">
+            Afficher uniquement les ruptures
+        </label>
+    </div>
+    <!-- fin meg-->
+    <script src="{% static 'JavaScript/product_search.js' %}"></script>
+    <script src="{% static 'JavaScript/ai_search.js' %}"></script>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for prod in products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-3">
+                        <a href="{% url 'product_details' prod.pk %}" class="text-decoration-none text-dark fw-bold">
+                            {{ prod.name }}
+                        </a>
+                    </h5>
+
+                    <div class="mt-auto">
+                        {% if prod.availability %}
+                        <p class="fs-3 text-success fw-bold mb-2">{{ prod.price|floatformat:2 }} .- CHF</p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success fs-6">En stock</span>
+
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'comparer' prod.pk %}"
+                                    class="btn btn-outline-primary btn-sm">Comparer</a>
+
+                                <form action="{% url 'cart_add' prod.id %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-cart-plus"></i> Panier
+                                    </button>
+                                </form>
+                            </div>
                         </div>
+                        {% else %}
+                        <p class="text-muted fst-italic mb-2">Victime de son succès...</p>
+                        <span class="badge bg-danger fs-6">Rupture</span>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <p class="text-muted fst-italic mb-2">Victime de son succès...</p>
-                    <span class="badge bg-danger fs-6">Rupture</span>
-                    {% endif %}
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 </div>
 
 {% endblock %}
