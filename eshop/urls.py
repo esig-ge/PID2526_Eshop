@@ -13,5 +13,9 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
     path("ai_search", views.ai_search, name="ai_search"),
-    path('comparer/<int:pk>/', views.comparer, name='comparer'),
+    path('comparer/', views.comparer, name='comparer'),
+    path('comparer/add/<int:pk>/', views.comparer_add, name='comparer_add'),
+    path('comparer/remove/<int:pk>/', views.comparer_remove, name='comparer_remove'),
+    path('comparer/clear/', views.comparer_clear, name='comparer_clear'),
+
 ]
