@@ -1,5 +1,5 @@
 from json import JSONDecodeError
-
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 import apikeys
@@ -64,15 +64,24 @@ def product_search(request):
         query = request.GET.get("q", "")
 
         if query:
-            resultats = Product.objects.filter(name__icontains=query).values('id', 'name', 'price')
-
+            resultats = Product.objects.filter(
+                name__icontains=query
+            ).values('id', 'name', 'price')
         else:
             resultats = Product.objects.none()
 
     except JSONDecodeError:
         resultats = Product.objects.none()
 
-    results_list = list(resultats)
+    # 👉 Formatage backend ici
+    results_list = []
+    for p in resultats:
+        results_list.append({
+            "id": p["id"],
+            "name": p["name"],
+            "price": f"{p['price']:.2f}"   # <-- solution
+        })
+
     return JsonResponse({"results": results_list})
 
 @login_required
@@ -156,7 +165,7 @@ def ai_search(request):
             messages=[
                 {
                     "role": "system",
-                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit ou réponds à la question."
+                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
                 },
                 {
                     "role": "user",
@@ -171,8 +180,35 @@ def ai_search(request):
 
         answer = response["message"]["content"]
 
-        # We send back the its answer
-        return JsonResponse({"results": [answer]})
+        # Clean potential markdown wrappers (e.g., ```json ... ```)
+        if answer.startswith('```json'):
+            answer = answer[7:].strip()  # Remove ```json
+        if answer.endswith('```'):
+            answer = answer[:-3].strip()
+
+        try:
+            parsed_data = json.loads(answer)
+        except json.JSONDecodeError:
+                # Fallback if not valid JSON: wrap the raw text
+                parsed_data = {
+                    "name": "Erreur de parsing",
+                    "link": "",
+                    "prix": "",
+                    "resume": answer,  # put the raw answer here
+                    "img_url": ""
+                }
+
+            # Clean and standardize the dict (e.g., ensure all keys exist, add defaults if missing)
+        clean_dict = {
+            "name": parsed_data.get("name", "Produit inconnu"),
+            "link": parsed_data.get("link", ""),
+            "prix": parsed_data.get("prix", "Prix indisponible"),
+            "resume": parsed_data.get("resume", "Pas de résumé disponible"),
+            "img_url": parsed_data.get("img_url", "")
+            }
+
+            # Wrap in a consistent format for JS (e.g., as results list with one item)
+        return JsonResponse({"results": [clean_dict]})
 
     except Exception as e:
         import traceback
@@ -183,39 +219,8 @@ def ai_search(request):
             "results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],
             "error": True
         }, status=503)
-    ai_products_list = list(ai_choice)
-    return JsonResponse({"results": ai_products_list})
 
 def comparer(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
     return render(request, 'eshop/comparer.html', {'product': product})
-
-
-# --------------------------------- modif meg------------------------
-
-
-def product_list(request):
-    # 1. On récupère tous les produits au départ
-    products = Product.objects.all()
-    # 2. Récupération des paramètres du formulaire (GET)
-    query = request.GET.get('q')
-    category = request.GET.get('cat')
-    sort_order = request.GET.get('tri')
-    in_stock = request.GET.get('stock')
-
-    # 3. Filtrage par mot-clé (Recherche intelligente)
-    if query:
-        products = products.filter(name__icontains=query)
-    # 4. Filtrage par catégorie
-    if category:
-        products = products.filter(Q(name__icontains=category) | Q(description__icontains=category))    # 5. Filtrage par stock
-    if in_stock == 'on':
-        products = products.filter(availability=True)
-    # 6. Tri par prix (Croissant / Décroissant)
-    if sort_order == 'asc':
-        products = products.order_by('price')
-    elif sort_order == 'desc':
-        products = products.order_by('-price')
-
-    return render(request, 'eshop/product_list.html', {'products': products})
