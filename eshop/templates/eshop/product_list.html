@@ -20,26 +20,6 @@
             <input type="text" name="q" id="searchInput" class="form-control" placeholder="Nom du produit..." value="{{ request.GET.q }}">
         </div>
 
-        <!--<div class="col-md-3">
-            <label class="form-label fw-bold">Catégorie</label>
-            <select name="cat" class="form-select" onchange="this.form.submit()">
-                <option value="">Toutes les catégories</option>
-                <option value="accessoires" {% if request.GET.cat == 'accessoires' %}selected{% endif %}>Accessoires</option>
-                <option value="composants" {% if request.GET.cat == 'composants' %}selected{% endif %}>Composants</option>
-                <option value="telephone" {% if request.GET.cat == 'telephone' %}selected{% endif %}>Téléphone</option>
-                <option value="ordinateur" {% if request.GET.cat == 'ordinateur' %}selected{% endif %}>Ordinateur</option>
-                <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>Tablette</option>
-            </select>
-        </div>-->
-    <div class="col-md-3">
-    <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch"
-               onchange="this.form.submit()"
-               {% if request.GET.rupture == 'on' %}checked{% endif %}>
-        <label class="form-check-label fw-bold" for="ruptureSwitch">
-            Afficher uniquement les ruptures
-        </label>
-    </div>
 </div>
 <div class="col-md-3">
     <label class="form-label fw-bold">Trier par prix</label>
@@ -52,7 +32,15 @@
     </form>
     <ul id="results" class="list-unstyled mt-2"></ul>
 </div>
-
+<div class="col-md-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch"
+               onchange="this.form.submit()"
+               {% if request.GET.rupture == 'on' %}checked{% endif %}>
+        <label class="form-check-label fw-bold" for="ruptureSwitch">
+            Afficher uniquement les ruptures
+        </label>
+    </div>
     <!-- fin meg-->
 <script src="{% static 'JavaScript/product_search.js' %}"></script>
 <script src="{% static 'JavaScript/ai_search.js' %}"></script>
