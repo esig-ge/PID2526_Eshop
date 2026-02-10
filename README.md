@@ -1,4 +1,4 @@
-PROJET ESIG PID 2526
+PROJET PID 2526
 
 Osman Anthony Abel Mégane
 
