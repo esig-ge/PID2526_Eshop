@@ -15,35 +15,6 @@
 
 
 <!-- modif meg -->
-
-
-    <div class="container mb-4">
-    <form method="GET" action="{% url 'votre_nom_de_vue_produits' %}" class="row g-3 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label fw-bold">Rechercher un produit</label>
-            <input type="text" name="q" id="searchInput" class="form-control" placeholder="Nom du produit..." value="{{ request.GET.q }}">
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Catégorie</label>
-            <select name="cat" class="form-select" onchange="this.form.submit()">
-                <option value="">Toutes les catégories</option>
-                <option value="accessoires" {% if request.GET.cat == 'accessoires' %}selected{% endif %}>Accessoires</option>
-                <option value="composants" {% if request.GET.cat == 'composants' %}selected{% endif %}>Composants</option>
-                <option value="telephone" {% if request.GET.cat == 'telephone' %}selected{% endif %}>Téléphone</option>
-                <option value="ordinateur" {% if request.GET.cat == 'ordinateur' %}selected{% endif %}>Ordinateur</option>
-                <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>Tablette</option>
-            </select>
-        </div>
-
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-dark w-100">Filtrer</button>
-        </div>
-    </form>
-    <ul id="results" class="list-unstyled mt-2"></ul>
-</div>
-<ul id="results" class="list-unstyled mt-2"></ul>
-</div>
     <!-- fin meg-->
 
 
