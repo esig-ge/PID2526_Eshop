@@ -208,12 +208,19 @@ def product_list(request):
     if category:
         products = products.filter(
             Q(name__icontains=category) | Q(description__icontains=category))  # 5. Filtrage par stock
-    if in_stock == 'on':
-        products = products.filter(availability=True)
+    # 5. Filtrage par stock
+    show_rupture = request.GET.get('rupture')
+    if show_rupture == 'on':
+        products = products.filter(availability=False)
     # 6. Tri par prix (Croissant / Décroissant)
     if sort_order == 'asc':
         products = products.order_by('price')
     elif sort_order == 'desc':
         products = products.order_by('-price')
+
+#     if in_stock == 'true':
+    #         products = products.filter(availability=True)
+    #     elif in_stock == 'false':  # Utilise elif et sors-le du premier bloc if
+    #         products = products.filter(availability=False)
 
     return render(request, 'eshop/product_list.html', {'products': products})
