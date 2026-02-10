@@ -4,15 +4,35 @@
 
 <div class="container my-5">
     <h2 class="text-center mb-5">Tous nos produits</h2>
-    <br>
-    <input type="text" id="searchInput-ai" placeholder="Demandez a l'ia!">
-    <input type="button" id="ai_query_button" value="Demander a léa l'ia">
-    <p href="{{ ai_choice }}" id="ai_choice"></p>
-    <br>
+    <div class="row mt-3 pr-5">
+        <input type="text" id="searchInput-ai" placeholder="Que cherchez vous?">
+        <input class="text-white btn bg-primary mt-1" type="button" id="ai_query_button" value="Demander a l'ia">
+        <p href="{{ ai_choice }}" id="ai_choice"></p>
+    </div>
+
     <input type="text" id="searchInput" placeholder="Rechercher un produit...">
 </div>
 
+
 <!-- modif meg -->
+<<<<<<< HEAD
+=======
+<div class="col-md-3">
+    <label class="form-label fw-bold">Catégorie</label>
+    <select name="cat" class="form-select">
+        <option value="">Toutes les catégories</option>
+        <option value="accessoires" {% if request.GET.cat=='accessoires' %}selected{% endif %}>Accessoires</option>
+        <option value="composants" {% if request.GET.cat=='composants' %}selected{% endif %}>Composants</option>
+        <option value="telephone" {% if request.GET.cat=='telephone' %}selected{% endif %}>telephone</option>
+        <option value="ordinateur" {% if request.GET.cat=='ordinateur' %}selected{% endif %}>ordinateur</option>
+        <option value="tablette" {% if request.GET.cat=='tablette' %}selected{% endif %}>tablette</option>
+
+    </select>
+</div>
+
+<ul id="results" class="list-unstyled mt-2"></ul>
+</div>
+>>>>>>> 322277408c46b55d1166c84d7a7b6e7e700e399c
 
 <script src="{% static 'JavaScript/product_search.js' %}"></script>
 <script src="{% static 'JavaScript/ai_search.js' %}"></script>
