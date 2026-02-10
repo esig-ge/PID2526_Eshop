@@ -194,28 +194,3 @@ def comparer(request, pk):
 
 # --------------------------------- modif meg------------------------
 
-
-def product_list(request):
-    # 1. On récupère tous les produits au départ
-    products = Product.objects.all()
-    # 2. Récupération des paramètres du formulaire (GET)
-    query = request.GET.get('q')
-    category = request.GET.get('cat')
-    sort_order = request.GET.get('tri')
-    in_stock = request.GET.get('stock')
-
-    # 3. Filtrage par mot-clé (Recherche intelligente)
-    if query:
-        products = products.filter(name__icontains=query)
-    # 4. Filtrage par catégorie
-    if category:
-        products = products.filter(Q(name__icontains=category) | Q(description__icontains=category))    # 5. Filtrage par stock
-    if in_stock == 'on':
-        products = products.filter(availability=True)
-    # 6. Tri par prix (Croissant / Décroissant)
-    if sort_order == 'asc':
-        products = products.order_by('price')
-    elif sort_order == 'desc':
-        products = products.order_by('-price')
-
-    return render(request, 'eshop/product_list.html', {'products': products})

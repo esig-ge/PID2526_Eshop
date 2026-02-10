@@ -13,21 +13,6 @@
 </div>
 
 <!-- modif meg -->
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Catégorie</label>
-        <select name="cat" class="form-select">
-            <option value="">Toutes les catégories</option>
-            <option value="accessoires" {% if request.GET.cat == 'accessoires' %}selected{% endif %}>Accessoires</option>
-            <option value="composants" {% if request.GET.cat == 'composants' %}selected{% endif %}>Composants</option>
-            <option value="telephone" {% if request.GET.cat == 'telephone' %}selected{% endif %}>telephone</option>
-            <option value="ordinateur" {% if request.GET.cat == 'ordinateur' %}selected{% endif %}>ordinateur</option>
-            <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>tablette</option>
-
-        </select>
-    </div>
-
-<ul id="results" class="list-unstyled mt-2"></ul>
-</div>
 
 <script src="{% static 'JavaScript/product_search.js' %}"></script>
 <script src="{% static 'JavaScript/ai_search.js' %}"></script>
