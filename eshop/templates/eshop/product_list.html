@@ -31,7 +31,14 @@
                 <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>Tablette</option>
             </select>
         </div>
-
+<div class="col-md-3">
+    <label class="form-label fw-bold">Trier par prix</label>
+    <select name="tri" class="form-select" onchange="this.form.submit()">
+        <option value="">Par défaut</option>
+        <option value="asc" {% if request.GET.tri == 'asc' %}selected{% endif %}>Prix : Croissant</option>
+        <option value="desc" {% if request.GET.tri == 'desc' %}selected{% endif %}>Prix : Décroissant</option>
+    </select>
+</div>
         <div class="col-md-2">
             <button type="submit" class="btn btn-dark w-100">Filtrer</button>
         </div>
