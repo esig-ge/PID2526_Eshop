@@ -2,7 +2,6 @@ from json import JSONDecodeError
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-
 import apikeys
 from eshop.models import Product, Review
 from .forms import PostReview
@@ -129,3 +128,10 @@ def ai_search(request):
             "results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],
             "error": True
         }, status=503)
+    ai_products_list = list(ai_choice)
+    return JsonResponse({"results": ai_products_list})
+
+def comparer(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    return render(request, 'eshop/comparer.html', {'product': product})
