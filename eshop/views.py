@@ -216,15 +216,58 @@ def ai_search(request):
         print("Erreur Ollama Cloud :", str(e))
         print(traceback.format_exc())
 
-        return JsonResponse({
-            "results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],
-            "error": True
-        }, status=503)
+        return JsonResponse({"results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],"error": True}, status=503)
 
-def comparer(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+def _get_compare_ids(request):
+    compare_ids = request.session.get('compare_ids', [])
+    return compare_ids if isinstance(compare_ids, list) else []
 
-    return render(request, 'eshop/comparer.html', {'product': product})
+
+def comparer(request):
+    compare_ids = _get_compare_ids(request)
+    products = Product.objects.filter(id__in=compare_ids)
+
+    return render(request, 'eshop/comparer.html', {'products': products})
+
+
+@require_POST
+def comparer_add(request, pk):
+    get_object_or_404(Product, pk=pk)
+
+    compare_ids = _get_compare_ids(request)
+    added = False
+
+    if pk not in compare_ids:
+        compare_ids.append(pk)
+        request.session['compare_ids'] = compare_ids
+        request.session.modified = True
+        added = True
+
+    # Réponse AJAX
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True,'added': added,'count': len(compare_ids),'compare_ids': compare_ids})
+
+    return redirect('comparer')
+
+
+@require_POST
+def comparer_remove(request, pk):
+    compare_ids = _get_compare_ids(request)
+
+    if pk in compare_ids:
+        compare_ids.remove(pk)
+        request.session['compare_ids'] = compare_ids
+        request.session.modified = True
+
+    return redirect('comparer')
+
+
+@require_POST
+def comparer_clear(request):
+    request.session['compare_ids'] = []
+    request.session.modified = True
+
+    return redirect('comparer')
 
 
 # --------------------------------- modif meg------------------------

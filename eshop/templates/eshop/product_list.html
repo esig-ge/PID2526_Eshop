@@ -50,7 +50,6 @@
             </div>
         </div>
     </div>
-
 </div>
 <!-- modif meg -->
 <div class="container mb-4">
@@ -60,14 +59,14 @@
             <input type="text" name="q" id="searchInput" class="form-control" placeholder="Nom du produit..."
                 value="{{ request.GET.q }}">
         </div>
-
+    </form>
 </div>
 <div class="col-md-3">
     <label class="form-label fw-bold">Trier par prix</label>
     <select name="tri" class="form-select" onchange="this.form.submit()">
         <option value="">Par défaut</option>
-        <option value="asc" {% if request.GET.tri=='asc' %}selected{% endif %}>Prix : Croissant</option>
-        <option value="desc" {% if request.GET.tri=='desc' %}selected{% endif %}>Prix : Décroissant</option>
+        <option value="asc" {% if request.GET.tri == 'asc' %}selected{% endif %}>Prix : Croissant</option>
+        <option value="desc" {% if request.GET.tri == 'desc' %}selected{% endif %}>Prix : Décroissant</option>
     </select>
 </div>
 </form>
@@ -78,7 +77,7 @@
 <div class="col-md-3">
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch" onchange="this.form.submit()"
-            {% if request.GET.rupture=='on' %}checked{% endif %}>
+            {% if request.GET.rupture == 'on' %}checked{% endif %}>
         <label class="form-check-label fw-bold" for="ruptureSwitch">
             Afficher uniquement les ruptures
         </label>
@@ -86,6 +85,7 @@
     <!-- fin meg-->
     <script src="{% static 'JavaScript/product_search.js' %}"></script>
     <script src="{% static 'JavaScript/ai_search.js' %}"></script>
+    <script src="{% static 'JavaScript/comparer.js' %}"></script>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for prod in products %}
@@ -106,8 +106,9 @@
                             <span class="badge bg-success fs-6">En stock</span>
 
                             <div class="d-flex gap-2">
-                                <a href="{% url 'comparer' prod.pk %}"
-                                    class="btn btn-outline-primary btn-sm">Comparer</a>
+                                <button type="button" class="btn btn-outline-primary btn-sm compare-btn" data-compare-url="{% url 'comparer_add' prod.pk %}">
+                                    Comparer
+                                </button>
 
                                 <form action="{% url 'cart_add' prod.id %}" method="post" class="m-0">
                                     {% csrf_token %}
