@@ -23,35 +23,35 @@
             <h3 class="mb-4"><i class="fas fa-comments me-2"></i>Avis clients</h3>
 
             {% if reviews %}
-                <div class="row g-4">
-                    {% for r in reviews %}
-                        <div class="col-12">
-                            <div class="card border-start border-primary border-5 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <div>
-                                            <strong class="text-primary">{{ r.user_mail }}</strong>
-                                            <small class="text-muted ms-3">{{ r.publish_date|date:"d/m/Y" }}</small>
-                                        </div>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{% url 'review_edit' r.pk %}" class="btn btn-outline-warning">
-                                                Modifier
-                                            </a>
-                                            <a href="{% url 'review_delete' r.pk %}" class="btn btn-outline-danger">
-                                                Supprimer
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <p class="mb-0">{{ r.review }}</p>
+            <div class="row g-4">
+                {% for r in reviews %}
+                <div class="col-12">
+                    <div class="card border-start border-primary border-5 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <strong class="text-primary">{{ r.user_mail }}</strong>
+                                    <small class="text-muted ms-3">{{ r.publish_date|date:"d/m/Y" }}</small>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'review_edit' r.pk %}" class="btn btn-outline-warning">
+                                        Modifier
+                                    </a>
+                                    <a href="{% url 'review_delete' r.pk %}" class="btn btn-outline-danger">
+                                        Supprimer
+                                    </a>
                                 </div>
                             </div>
+                            <p class="mb-0">{{ r.review }}</p>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
+                {% endfor %}
+            </div>
             {% else %}
-                <div class="alert alert-info">
-                    Aucun avis pour ce produit pour le moment.
-                </div>
+            <div class="alert alert-info">
+                Aucun avis pour ce produit pour le moment.
+            </div>
             {% endif %}
 
             <!-- Nouveau avis -->
