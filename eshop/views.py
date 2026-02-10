@@ -190,3 +190,6 @@ def comparer(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
     return render(request, 'eshop/comparer.html', {'product': product})
+
+
+# --------------------------------- modif meg------------------------

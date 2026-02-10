@@ -4,16 +4,19 @@
 
 <div class="container my-5">
     <h2 class="text-center mb-5">Tous nos produits</h2>
-    <br>
-    <input type="text" id="searchInput-ai" placeholder="Demandez a l'ia!">
-    <input type="button" id="ai_query_button" value="Demander a léa l'ia">
-    <p href="{{ ai_choice }}" id="ai_choice"></p>
-    <br>
+    <div class="row mt-3 pr-5">
+        <input type="text" id="searchInput-ai" placeholder="Que cherchez vous?">
+        <input class="text-white btn bg-primary mt-1" type="button" id="ai_query_button" value="Demander a l'ia">
+        <p href="{{ ai_choice }}" id="ai_choice"></p>
+    </div>
+
     <input type="text" id="searchInput" placeholder="Rechercher un produit...">
 </div>
 
-<ul id="results" class="list-unstyled mt-2"></ul>
-</div>
+
+<!-- modif meg -->
+    <!-- fin meg-->
+
 
 <script src="{% static 'JavaScript/product_search.js' %}"></script>
 <script src="{% static 'JavaScript/ai_search.js' %}"></script>
