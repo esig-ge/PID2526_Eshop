@@ -7,6 +7,7 @@ from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
+from django.db.models import Q
 # Create your views here.
 
 from django.views.decorators.http import require_POST
@@ -193,3 +194,26 @@ def comparer(request, pk):
 
 
 # --------------------------------- modif meg------------------------
+def product_list(request):
+    products = Product.objects.all()
+    query = request.GET.get('q')
+    category = request.GET.get('cat')
+    sort_order = request.GET.get('tri')
+    in_stock = request.GET.get('stock')
+
+    # 3. Filtrage par mot-clé (Recherche intelligente)
+    if query:
+        products = products.filter(name__icontains=query)
+    # 4. Filtrage par catégorie
+    if category:
+        products = products.filter(
+            Q(name__icontains=category) | Q(description__icontains=category))  # 5. Filtrage par stock
+    if in_stock == 'on':
+        products = products.filter(availability=True)
+    # 6. Tri par prix (Croissant / Décroissant)
+    if sort_order == 'asc':
+        products = products.order_by('price')
+    elif sort_order == 'desc':
+        products = products.order_by('-price')
+
+    return render(request, 'eshop/product_list.html', {'products': products})
