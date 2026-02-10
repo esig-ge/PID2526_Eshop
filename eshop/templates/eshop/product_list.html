@@ -20,7 +20,7 @@
             <input type="text" name="q" id="searchInput" class="form-control" placeholder="Nom du produit..." value="{{ request.GET.q }}">
         </div>
 
-        <div class="col-md-3">
+        <!--<div class="col-md-3">
             <label class="form-label fw-bold">Catégorie</label>
             <select name="cat" class="form-select" onchange="this.form.submit()">
                 <option value="">Toutes les catégories</option>
@@ -30,7 +30,17 @@
                 <option value="ordinateur" {% if request.GET.cat == 'ordinateur' %}selected{% endif %}>Ordinateur</option>
                 <option value="tablette" {% if request.GET.cat == 'tablette' %}selected{% endif %}>Tablette</option>
             </select>
-        </div>
+        </div>-->
+    <div class="col-md-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch"
+               onchange="this.form.submit()"
+               {% if request.GET.rupture == 'on' %}checked{% endif %}>
+        <label class="form-check-label fw-bold" for="ruptureSwitch">
+            Afficher uniquement les ruptures
+        </label>
+    </div>
+</div>
 <div class="col-md-3">
     <label class="form-label fw-bold">Trier par prix</label>
     <select name="tri" class="form-select" onchange="this.form.submit()">
@@ -39,9 +49,6 @@
         <option value="desc" {% if request.GET.tri == 'desc' %}selected{% endif %}>Prix : Décroissant</option>
     </select>
 </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-dark w-100">Filtrer</button>
-        </div>
     </form>
     <ul id="results" class="list-unstyled mt-2"></ul>
 </div>
