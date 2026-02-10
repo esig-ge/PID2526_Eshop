@@ -2,6 +2,7 @@ from json import JSONDecodeError
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+
 import apikeys
 from eshop.models import Product, Review
 from .forms import PostReview
