@@ -13,6 +13,8 @@ import os
 import stripe
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
 
 
 # Create your views here.
