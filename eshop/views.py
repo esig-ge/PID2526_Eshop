@@ -2,7 +2,7 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from eshop.models import Product, Review, Cart, CartItem, AiSettings
+from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
@@ -153,11 +153,8 @@ def ai_search(request):
 
     try:
 
-        api_key_ollama = os.getenv("API_KEY_OLLAMA")
-        if not api_key_ollama:
-            raise ValueError("API_KEY_OLLAMA not set in environment")
-        
-
+        if not api_key:
+            raise ValueError("Aucune clé API Ollama configurée")
 
         client = Client(
             host="https://ollama.com",
@@ -307,16 +304,23 @@ def product_list(request):
     #     elif in_stock == 'false':  # Utilise elif et sors-le du premier bloc if
     #         products = products.filter(availability=False)
 
-
-
-
-
-
-
-
-
-
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
+
+def facture_view(request, order_id):
+    # Si order_id n'existe pas en BDD, ça retourne 404
+    order = get_object_or_404(Order, id=order_id)
+
+    # On vérifie aussi que la facture appartient bien à l'utilisateur connecté
+    if order.user != request.user:
+        from django.http import Http404
+        raise Http404("Vous n'avez pas l'autorisation de voir cette facture.")
+
+    context = {
+        'order': order,
+        'cart_items': order.items.all(),  # On récupère les items liés à la commande
+        'total': order.get_total_cost(),
+    }
+    return render(request, 'eshop/facture.html', context)
 
 
 def get_aiSettings(request):
@@ -329,5 +333,3 @@ def get_aiSettings(request):
         "prompt": settings.prompt,
         }
     return JsonResponse(data)
-
-
