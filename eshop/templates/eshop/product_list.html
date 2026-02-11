@@ -66,7 +66,7 @@
 
         <form method="GET" action="">
     <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" name="show_dispo" id="dispoSwitch"
+        <input class="form-check-input" type="checkbox" name="dispo" id="dispoSwitch"
                onchange="this.form.submit()"
                {% if request.GET.dispo == 'on' %}checked{% endif %}>
         <label class="form-check-label fw-bold" for="dispoSwitch">
