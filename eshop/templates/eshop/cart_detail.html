@@ -42,7 +42,10 @@
     </table>
     <div class="text-end">
         <a href="{% url 'product_list' %}" class="btn btn-secondary">Continuer vos achats</a>
-        <a href="#" class="btn btn-success">Commander</a>
+        <form method="post" action="{% url 'checkout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Commander</button>
+        </form>
     </div>
 </div>
 {% endblock %}
