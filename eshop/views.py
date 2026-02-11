@@ -273,6 +273,86 @@ def comparer_clear(request):
 
     return redirect('comparer')
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+@require_POST
+def checkout_create_session(request):
+    """
+    Crée une Checkout Session à partir du panier en session.
+    Hypothèse : tu as request.session['cart'] avec les items.
+    Si ton panier est stocké autrement, dis-moi et je l'adapte à TON code.
+    """
+
+    cart = request.session.get("cart", {})
+    if not cart:
+        return redirect("cart_detail")
+
+    line_items = []
+    # cart attendu: {product_id: {"name":..., "price":..., "quantity":...}}
+    for _, item in cart.items():
+        line_items.append({
+            "price_data": {
+                "currency": "chf",
+                "product_data": {"name": item["name"]},
+                # Stripe attend des centimes (int)
+                "unit_amount": int(round(float(item["price"]) * 100)),
+            },
+            "quantity": int(item["quantity"]),
+        })
+
+    success_url = request.build_absolute_uri(reverse("checkout_success"))
+    cancel_url = request.build_absolute_uri(reverse("checkout_cancel"))
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        payment_method_types=["card"],
+        line_items=line_items,
+        success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=cancel_url,
+    )
+
+    # Redirection vers Stripe Checkout
+    return redirect(session.url, permanent=False)
+
+
+def checkout_success(request):
+    return render(request, "eshop/checkout_success.html")
+
+
+def checkout_cancel(request):
+    return render(request, "eshop/checkout_cancel.html")
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    """
+    Webhook Stripe: on vérifie la signature et on traite checkout.session.completed.
+    Stripe recommande la vérification via Stripe-Signature + constructEvent. :contentReference[oaicite:3]{index=3}
+    """
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload=payload,
+            sig_header=sig_header,
+            secret=endpoint_secret
+        )
+    except Exception:
+        return HttpResponse(status=400)
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+
+        # ✅ ICI: valide la commande côté serveur.
+        # Exemple: vider le panier après paiement confirmé
+        # (dans un vrai projet, tu crées une Order en DB avant, puis tu la "paid" ici)
+        request.session["cart"] = {}
+        request.session.modified = True
+
+    return HttpResponse(status=200)
 
 # --------------------------------- modif meg------------------------
 def product_list(request):
