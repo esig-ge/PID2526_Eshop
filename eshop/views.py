@@ -152,8 +152,6 @@ def ai_search(request):
         return JsonResponse({"results": []})
 
     try:
-        # ─── Configuration pour Ollama Cloud ───
-        api_key = apikeys.api_key_osman  # api key is supposed to be found on your local files, dont push it on the repo
 
         if not api_key:
             raise ValueError("Aucune clé API Ollama configurée")
@@ -307,7 +305,6 @@ def product_list(request):
     #         products = products.filter(availability=False)
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
-# facture
 
 def facture_view(request, order_id):
     # Si order_id n'existe pas en BDD, ça retourne 404
@@ -324,3 +321,15 @@ def facture_view(request, order_id):
         'total': order.get_total_cost(),
     }
     return render(request, 'eshop/facture.html', context)
+
+
+def get_aiSettings(request):
+    settings = AiSettings.objects.first()
+    if not settings:
+        return JsonResponse({"error": "AISettings not found"}, status=404)
+
+    data = {
+        "model": settings.model,
+        "prompt": settings.prompt,
+        }
+    return JsonResponse(data)

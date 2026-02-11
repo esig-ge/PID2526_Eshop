@@ -1,6 +1,6 @@
 // ai_search.js
 
-document.getElementById("ai_query_button").addEventListener("click", async function () {
+document.getElementById("aiQueryButton").addEventListener("click", async function () {
     const query = document.getElementById("searchInput-ai").value;
     const resultsContainer = document.getElementById("ai_choice");
 
@@ -65,6 +65,8 @@ document.getElementById("ai_query_button").addEventListener("click", async funct
             link.style.textDecoration = "none";
             link.style.color = "#2c3e50";
             link.style.display = "block";
+            // doesn't work ? 
+            link.target = "_blank";
             link.innerHTML = `
             <h3 style="margin: 0; font-size: 1.2em; font-weight: 600;">${suggestion.name}</h3>
             <span style="color: #27ae60; font-size: 1.1em; font-weight: 500;">${suggestion.prix} CHF</span>
@@ -98,14 +100,6 @@ document.getElementById("ai_query_button").addEventListener("click", async funct
 document.getElementById("clear-ai-search").addEventListener("click", function () {
     const input = document.getElementById("searchInput-ai");
     const results = document.getElementById("ai_choice");
-    input.value = "";
-    results.innerHTML = "";
-});
-
-// Clear normal search
-document.getElementById("clear-normal-search").addEventListener("click", function () {
-    const input = document.getElementById("searchInput");
-    const results = document.getElementById("results");
     input.value = "";
     results.innerHTML = "";
 });

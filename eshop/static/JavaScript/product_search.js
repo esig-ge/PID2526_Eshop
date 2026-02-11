@@ -55,3 +55,11 @@ document.getElementById("searchInput").addEventListener("input", async function 
         resultsContainer.appendChild(div);
     }
 });
+
+// Clear normal search
+document.getElementById("clearNormalSearch").addEventListener("click", function () {
+    const input = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+    input.value = "";
+    results.innerHTML = "";
+});

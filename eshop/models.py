@@ -53,3 +53,12 @@ class CartItem(models.Model):
 
     def sub_total(self):
         return self.product.price * self.quantity
+    
+
+class AiSettings(models.Model):
+    aiModel = models.CharField(max_length=100)
+    prompt = models.CharField(max_length=256)
+
+
+    def sub_total(self):
+        return self.aiModel + self.prompt
