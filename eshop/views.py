@@ -2,16 +2,17 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-import apikeys
 from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
 from django.db.models import Q
-# Create your views here.
-
+import os
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+
+
+# Create your views here.
 
 
 def product_list(request):
@@ -140,6 +141,11 @@ def cart_detail(request):
 
 
 def ai_search(request):
+    #api key getter for ollama
+    api_key_ollama = os.getenv("API_KEY_OLLAMA")
+    if not api_key_ollama:
+        raise ValueError("API_KEY_OLLAMA not set in environment")
+
     query = request.GET.get("q", "")
 
     if len(query) < 2:
@@ -155,7 +161,7 @@ def ai_search(request):
         client = Client(
             host="https://ollama.com",
             headers={
-                "Authorization": f"Bearer {api_key}"
+                "Authorization": f"Bearer {api_key_ollama}"
             }
         )
 
