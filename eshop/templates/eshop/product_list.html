@@ -57,8 +57,8 @@
     <label class="form-label fw-bold">Trier par prix</label>
     <select name="tri" class="form-select" onchange="this.form.submit()">
         <option value="">Par défaut</option>
-        <option value="asc" {% if request.GET.tri == 'asc' %}selected{% endif %}>Prix : Croissant</option>
-        <option value="desc" {% if request.GET.tri == 'desc' %}selected{% endif %}>Prix : Décroissant</option>
+        <option value="asc" {% if request.GET.tri=='asc' %}selected{% endif %}>Prix : Croissant</option>
+        <option value="desc" {% if request.GET.tri=='desc' %}selected{% endif %}>Prix : Décroissant</option>
     </select>
 </div>
 </form>
@@ -69,7 +69,7 @@
 <div class="col-md-3">
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch" onchange="this.form.submit()"
-            {% if request.GET.rupture == 'on' %}checked{% endif %}>
+            {% if request.GET.rupture=='on' %}checked{% endif %}>
         <label class="form-check-label fw-bold" for="ruptureSwitch">
             Afficher uniquement les ruptures
         </label>
@@ -98,7 +98,8 @@
                             <span class="badge bg-success fs-6">En stock</span>
 
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm compare-btn" data-compare-url="{% url 'comparer_add' prod.pk %}">
+                                <button type="button" class="btn btn-outline-primary btn-sm compare-btn"
+                                    data-compare-url="{% url 'comparer_add' prod.pk %}">
                                     Comparer
                                 </button>
 

@@ -2,7 +2,7 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from eshop.models import Product, Review, Cart, CartItem
+from eshop.models import Product, Review, Cart, CartItem, AiSettings
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
@@ -152,11 +152,12 @@ def ai_search(request):
         return JsonResponse({"results": []})
 
     try:
-        # ─── Configuration pour Ollama Cloud ───
-        api_key = apikeys.api_key_osman  # api key is supposed to be found on your local files, dont push it on the repo
 
-        if not api_key:
-            raise ValueError("Aucune clé API Ollama configurée")
+        api_key_ollama = os.getenv("API_KEY_OLLAMA")
+        if not api_key_ollama:
+            raise ValueError("API_KEY_OLLAMA not set in environment")
+        
+
 
         client = Client(
             host="https://ollama.com",
@@ -307,3 +308,15 @@ def product_list(request):
     #         products = products.filter(availability=False)
 
     return render(request, 'eshop/product_list.html', {'products': products})
+
+
+def get_aiSettings(request):
+    settings = AiSettings.objects.first()
+    if not settings:
+        return JsonResponse({"error": "AISettings not found"}, status=404)
+
+    data = {
+        "model": settings.model,
+        "prompt": settings.prompt,
+        }
+    return JsonResponse(data)
