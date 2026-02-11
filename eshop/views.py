@@ -292,9 +292,9 @@ def product_list(request):
         products = products.filter(
             Q(name__icontains=category) | Q(description__icontains=category))  # 5. Filtrage par stock
     # 5. Filtrage par stock
-    show_rupture = request.GET.get('rupture')
-    if show_rupture == 'on':
-        products = products.filter(availability=False)
+    show_dispo = request.GET.get('dispo')
+    if show_dispo == 'on':
+        products = products.filter(availability=True)
     # 6. Tri par prix (Croissant / Décroissant)
     if sort_order == 'asc':
         products = products.order_by('price')

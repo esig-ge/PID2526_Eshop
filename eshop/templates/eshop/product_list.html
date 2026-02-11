@@ -64,15 +64,16 @@
             </select>
         </div>
 
-        <div class="col-md-3 d-flex align-items-end">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" name="rupture" id="ruptureSwitch"
-                    onchange="this.form.submit()" {% if rupture == 'on' %}checked{% endif %}>
-                <label class="form-check-label fw-bold" for="ruptureSwitch">
-                    Afficher uniquement les ruptures
-                </label>
-            </div>
-        </div>
+        <form method="GET" action="">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="show_dispo" id="dispoSwitch"
+               onchange="this.form.submit()"
+               {% if request.GET.dispo == 'on' %}checked{% endif %}>
+        <label class="form-check-label fw-bold" for="dispoSwitch">
+            Afficher uniquement les articles disponibles
+        </label>
+    </div>
+</form>
     </form>
     <!-- PRODUITS -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
