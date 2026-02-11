@@ -7,6 +7,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.FloatField()
     availability = models.BooleanField()
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
 
     #Def Publish obligatoire pour l'espace admin django !!!!!!
     def publish(self):
