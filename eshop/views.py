@@ -306,4 +306,4 @@ def product_list(request):
     #     elif in_stock == 'false':  # Utilise elif et sors-le du premier bloc if
     #         products = products.filter(availability=False)
 
-    return render(request, 'eshop/product_list.html', {'products': products})
+    return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
