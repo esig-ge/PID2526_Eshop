@@ -16,37 +16,42 @@ document.getElementById("searchInput").addEventListener("input", async function 
         const data = await response.json();
 
         if (data.results.length === 0) {
-            const li = document.createElement("li");
-            li.textContent = "Aucun produit trouvé";
-            li.style.color = "red";
-            resultsContainer.appendChild(li);
+            const div = document.createElement("div");
+            div.className = "alert alert-warning mt-2";
+            div.textContent = "Aucun produit trouvé";
+            resultsContainer.appendChild(div);
             return;
         }
 
+        // Use Bootstrap list-group for pretty display
+        const listGroup = document.createElement("div");
+        listGroup.className = "list-group mt-2";
+
         data.results.forEach(item => {
-            const li = document.createElement("li");
             const a = document.createElement("a");
-
             a.href = `/get/${item.id}/`;
+            a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+            a.style.textDecoration = "none";
 
-            // Correction principale : on protège contre les valeurs undefined
+            // Protection contre undefined
             const name = item.name || "Produit sans nom";
-            const price = item.price !== undefined ? item.price : "";
+            const price = item.price !== undefined ? item.price : "Prix indisponible";
 
-            // On n’affiche le tiret et le prix que si le prix existe
-            a.textContent = price 
-                ? `${name} — ${price} €`
-                : name;
+            a.innerHTML = `
+                <span class="fw-bold">${name}</span>
+                <span class="badge bg-success rounded-pill">${price} €</span>
+            `;
 
-            li.appendChild(a);
-            resultsContainer.appendChild(li);
+            listGroup.appendChild(a);
         });
+
+        resultsContainer.appendChild(listGroup);
 
     } catch (err) {
         console.error(err);
-        const li = document.createElement("li");
-        li.textContent = "Erreur de recherche";
-        li.style.color = "red";
-        resultsContainer.appendChild(li);
+        const div = document.createElement("div");
+        div.className = "alert alert-danger mt-2";
+        div.textContent = "Erreur de recherche";
+        resultsContainer.appendChild(div);
     }
 });
