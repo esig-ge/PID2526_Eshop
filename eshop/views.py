@@ -1,13 +1,16 @@
 from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
 from django.db.models import Q
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 import os
+import stripe
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
