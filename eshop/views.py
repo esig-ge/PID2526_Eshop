@@ -165,23 +165,23 @@ def ai_search(request):
             }
         )
 
-        # Appel simple et efficace
+        # Ollama API call
         response = client.chat(
             model="gemma3:27b",  # ← this one will need to be a variable taken from the database so the web "admin" can change it
 
             messages=[
-                {
+                {   # Ai instructions -> system role are for those
                     "role": "system",
                     "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
                 },
-                {
+                {   # Actuel Query -> user role is for actual queries
                     "role": "user",
                     "content": query
                 }
             ],
             options={
-                "temperature": 0.7,
-                "num_predict": 180  # LIMITS THE AI, DONT WANT TO HAVE A RESPONSE TOO LONG
+                "temperature": 0.7, # Temperature controls randomness/creativity in the model’s output
+                "num_predict": 180  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
 
