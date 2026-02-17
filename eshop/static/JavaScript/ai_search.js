@@ -55,8 +55,8 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
         loader.remove();
 
         // if not in the expected format, show an error message
-        if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
-            resultsContainer.innerHTML = '<span style="color: #e74c3c;">Aucune suggestion pour le moment...</span>';
+        if (!data.results || !Array.isArray(data.results) || data.results.length === 0 || data.results[0].name === "Erreur de parsing") {
+            resultsContainer.innerHTML = '<span style="color: #e74c3c;">Aucune suggestion pour le moment...</span> <p> Essayez de reformuler votre question ou d\'utiliser des mots-clés différents.</p>';
             return;
         }
 

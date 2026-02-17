@@ -1,32 +1,42 @@
 {% extends "eshop/header.html" %}
 {% block content %}
 
-<html>
-<body>
 <div class="container mt-5">
-    <h1>Paramètres AI</h1>
-    <form method="post">
+    <h1 class="mb-4">Paramètres AI</h1>
+
+    <form method="post" class="card p-4 shadow-sm bg-light rounded">
         {% csrf_token %}
+
+        <!-- Champ modèle -->
         <div class="mb-3">
-            <label for="{{ form.model.id_for_label }}" class="form-label">Modèle</label>
-            {{ form.model }}
+            <label for="{{ form.aiModel.id_for_label }}" class="form-label fw-bold">
+                Modèle
+            </label>
+            {{ form.aiModel }}
         </div>
+        
         <div class="mb-3">
-            <p>Attention, le prompt se fini, par défaut, par la requete/entrée de l'utilisateur</p>
-            <label for="{{ form.prompt.id_for_label }}" class="form-label">Prompt</label>
+            <p class="text-muted small">
+                Attention, le prompt se termine par la requête/entrée de l'utilisateur
+            </p>
+        
+            <label for="{{ form.prompt.id_for_label }}" class="form-label fw-bold">
+                Prompt
+            </label>
             {{ form.prompt }}
         </div>
+
         <button type="submit" class="btn btn-primary">Enregistrer</button>
     </form>
 
-    <div class="container mt-3 bg-danger text-white">
-        <strong>Model recommander :</strong> 
-        <p>gemma3:27b</p>
-        <strong>Prompt recommander :</strong> 
-        <p>Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url </p>
+    <!-- Section info recommandée -->
+    <div class="mt-4 p-3 bg-danger text-white rounded shadow-sm">
+        <h5>Paramètres recommandés :</h5>
+        <ul class="mb-1">
+            <li><strong>Modèle :</strong> gemma3:27b</li>
+            <li><strong>Prompt :</strong> Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un JSON avec <code>name, link, prix, resume, img_url</code>.</li>
+        </ul>
     </div>
-
 </div>
-</body>
-</html>
+
 {% endblock %}

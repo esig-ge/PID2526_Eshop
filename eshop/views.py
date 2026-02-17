@@ -2,7 +2,7 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
-from eshop.models import Product, Review, Cart, CartItem
+from eshop.models import Product, Review, Cart, CartItem, AiSettings
 from .forms import PostReview, AiSettingsForm
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
@@ -155,7 +155,7 @@ def ai_search(request):
 
     try:
 
-        if not api_key:
+        if not api_key_ollama:
             raise ValueError("Aucune clé API Ollama configurée")
 
         client = Client(
@@ -172,7 +172,7 @@ def ai_search(request):
             messages=[
                 {   # Ai instructions -> system role are for those
                     "role": "system",
-                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
+                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile .Si cela n'a pas de lien avec des produit tech renvoie 'Mauvaise demande'. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
                 },
                 {   # Actuel Query -> user role is for actual queries
                     "role": "user",
@@ -403,7 +403,7 @@ def ai_settings_view(request):
         form = AiSettingsForm(request.POST, instance=settings)
         if form.is_valid():
             form.save()
-            return redirect('ai_settings')  # redirection after updateing !
+            return redirect('ai_settings')  # redirection after updating !
     else:
         form = AiSettingsForm(instance=settings)
     
