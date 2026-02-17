@@ -280,10 +280,15 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @require_POST
 def checkout_create_session(request):
-    # Ton panier semble être en DB (cart_items). Souvent lié à l'utilisateur.
-    # Si c’est bien ça, on filtre par request.user.
-    cart_items = CartItem.objects.filter(user=request.user)
+    if not request.user.is_authenticated:
+        return redirect("login")  # ou la route login de ton projet
 
+    # Récupérer le panier de l'utilisateur (le plus récent)
+    cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
+    if not cart:
+        return redirect("cart_detail")
+
+    cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     if not cart_items.exists():
         return redirect("cart_detail")
 
@@ -292,10 +297,8 @@ def checkout_create_session(request):
         line_items.append({
             "price_data": {
                 "currency": "chf",
-                "product_data": {
-                    "name": item.product.name,
-                },
-                "unit_amount": int(round(float(item.product.price) * 100)),  # centimes
+                "product_data": {"name": item.product.name},
+                "unit_amount": int(round(float(item.product.price) * 100)),
             },
             "quantity": int(item.quantity),
         })
@@ -309,6 +312,11 @@ def checkout_create_session(request):
         line_items=line_items,
         success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
         cancel_url=cancel_url,
+        # important pour le webhook (identifier le panier)
+        metadata={
+            "cart_id": str(cart.id),
+            "owner_id": str(request.user.id),
+        }
     )
 
     return redirect(session.url, permanent=False)
@@ -335,13 +343,13 @@ def stripe_webhook(request):
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        user_id = session.get("metadata", {}).get("user_id")
+        cart_id = session.get("metadata", {}).get("cart_id")
 
-        if user_id:
-            # Exemple : vider le panier après paiement confirmé
-            CartItem.objects.filter(user_id=user_id).delete()
+        if cart_id:
+            CartItem.objects.filter(cart_id=cart_id).delete()
 
     return HttpResponse(status=200)
+
 
 # --------------------------------- modif meg------------------------
 def product_list(request):
