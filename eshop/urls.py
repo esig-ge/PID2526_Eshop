@@ -23,6 +23,8 @@ urlpatterns = [
     path("checkout/cancel/", views.checkout_cancel, name="checkout_cancel"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
     path('ai-settings/', views.ai_settings, name='ai_settings'),
-    # Dans eshop/urls.py
     path('facture/pdf/<int:order_id>/', views.facture_view, name='facture'),
+    path('ai_settings/', views.ai_settings_view, name='ai_settings'),
+
+
 ]
