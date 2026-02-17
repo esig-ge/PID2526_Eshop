@@ -2,7 +2,7 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
-from eshop.models import Product, Review, Cart, CartItem
+from eshop.models import Product, Review, Cart, CartItem, AiSettings
 from .forms import PostReview
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
