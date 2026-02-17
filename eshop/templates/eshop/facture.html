@@ -1,21 +1,35 @@
-{% extends "eshop/header.html" %}
+<!DOCTYPE html>
+<html>
+<head>
 
-{% block content %}
-<div class="container my-5 text-center">
-    <div class="card shadow p-5">
-        <div class="mb-4">
-            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-        </div>
-        <h2 class="mb-3">Merci pour votre commande !</h2>
-        <p class="lead">Votre paiement a été accepté avec succès. Un e-mail de confirmation vous a été envoyé.</p>
-        
-        <div class="mt-5">
-            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary me-2">Retour à la boutique</a>
-            
-            <a href="{% url 'facture_detail' order_id=order.id %}" class="btn btn-primary">
-                <i class="bi bi-file-earmark-pdf"></i> Voir ma Facture
-            </a>
-        </div>
+</head>
+<body>
+    <div class="header">
+        <h1>FACTURE - Commande N°{{ order.id }}</h1>
+        <p>Date : {{ order.created_at|date:"d/m/Y" }}</p>
     </div>
-</div>
-{% endblock %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix Unitaire</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }} €</td>
+                <td>{{ item.get_cost }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="total">Total à payer : {{ order.get_total_cost }} €</p>
+</body>
+</html>
