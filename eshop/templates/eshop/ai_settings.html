@@ -1,0 +1,32 @@
+{% extends "eshop/header.html" %}
+{% block content %}
+
+<html>
+<body>
+<div class="container mt-5">
+    <h1>Paramètres AI</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.model.id_for_label }}" class="form-label">Modèle</label>
+            {{ form.model }}
+        </div>
+        <div class="mb-3">
+            <p>Attention, le prompt se fini, par défaut, par la requete/entrée de l'utilisateur</p>
+            <label for="{{ form.prompt.id_for_label }}" class="form-label">Prompt</label>
+            {{ form.prompt }}
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </form>
+
+    <div class="container mt-3 bg-danger text-white">
+        <strong>Model recommander :</strong> 
+        <p>gemma3:27b</p>
+        <strong>Prompt recommander :</strong> 
+        <p>Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url </p>
+    </div>
+
+</div>
+</body>
+</html>
+{% endblock %}

@@ -7,6 +7,37 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
     // clean previous results
     resultsContainer.innerHTML = "";
 
+        // show loading spinner
+    const loader = document.createElement("div");
+    loader.style.textAlign = "center";
+    loader.style.padding = "12px";
+    loader.innerHTML = `
+        <div style="
+            width:24px;
+            height:24px;
+            border:3px solid #ddd;
+            border-top:3px solid #3498db;
+            border-radius:50%;
+            animation: spin 0.8s linear infinite;
+            margin:auto;
+        "></div>
+    `;
+    resultsContainer.appendChild(loader);
+
+    // inject animation once
+    if (!document.getElementById("aiLoaderStyle")) {
+        const style = document.createElement("style");
+        style.id = "aiLoaderStyle";
+        style.innerHTML = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+
     // if the request is too short, dont send do anything
     if (query.length < 2) {
         return;
@@ -20,6 +51,8 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
         }
 
         const data = await response.json();
+        // remove loader
+        loader.remove();
 
         // if not in the expected format, show an error message
         if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
