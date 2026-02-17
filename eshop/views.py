@@ -343,6 +343,10 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
+def ai_settings(request):
+    # Pour l'instant, on renvoie juste un message ou un template vide
+    return render(request, 'eshop/ai_settings.html')
+
 # --------------------------------- modif meg------------------------
 def product_list(request):
     products = Product.objects.all()
@@ -392,9 +396,8 @@ def facture_view(request, order_id):
     return render(request, 'eshop/facture.html', context)
 
 
-def ai_settings_view(request):
+def get_aiSettings(request):
     settings = AiSettings.objects.first()
-    
     if not settings:
         # If doesn't exist, create a default one (i dont know if its really necessary)
         settings = AiSettings.objects.create(aiModel="", prompt="")
@@ -403,8 +406,30 @@ def ai_settings_view(request):
         form = AiSettingsForm(request.POST, instance=settings)
         if form.is_valid():
             form.save()
-            return redirect('ai_settings')  # redirection after updating !
+            return redirect('ai_settings')  # redirection after updateing !
     else:
         form = AiSettingsForm(instance=settings)
     
     return render(request, 'eshop/ai_settings.html', {'form': form})
+
+# #facture meg
+# def facture_pdf(request, order_id):
+#     # 1. Récupérer la commande
+#     order = get_object_or_404(Order, id=order_id)
+#
+#     # 2. Préparer les données pour le template de facture
+#     context = {'order': order}
+#
+#     # 3. Rendre le template HTML en chaîne de caractères
+#     html_string = render_to_string('eshop/facture_template.html', context)
+#
+#     # 4. Générer le PDF
+#     html = HTML(string=html_string, base_url=request.build_absolute_uri())
+#     pdf = html.write_pdf()
+#
+#     # 5. Renvoyer le fichier PDF
+#     response = HttpResponse(pdf, content_type='application/pdf')
+#     # 'attachment' pour forcer le téléchargement, 'inline' pour l'ouvrir dans le navigateur
+#     response['Content-Disposition'] = f'attachment; filename="facture_{order.id}.pdf"'
+#
+#     return response
