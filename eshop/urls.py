@@ -17,5 +17,5 @@ urlpatterns = [
     path('comparer/add/<int:pk>/', views.comparer_add, name='comparer_add'),
     path('comparer/remove/<int:pk>/', views.comparer_remove, name='comparer_remove'),
     path('comparer/clear/', views.comparer_clear, name='comparer_clear'),
-
+    path('ai_settings/', views.ai_settings_view, name='ai_settings'),
 ]
