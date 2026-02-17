@@ -22,5 +22,6 @@ urlpatterns = [
     path("checkout/success/", views.checkout_success, name="checkout_success"),
     path("checkout/cancel/", views.checkout_cancel, name="checkout_cancel"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
-
+#   path('commande/facture/<int:order_id>/', views.facture_pdf, name='facture_detail'),
+    #
 ]
