@@ -396,7 +396,7 @@ def facture_view(request, order_id):
     return render(request, 'eshop/facture.html', context)
 
 
-def get_aiSettings(request):
+def ai_settings_view(request):
     settings = AiSettings.objects.first()
     if not settings:
         # If doesn't exist, create a default one (i dont know if its really necessary)
