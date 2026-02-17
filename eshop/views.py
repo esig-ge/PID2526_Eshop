@@ -155,7 +155,7 @@ def ai_search(request):
 
     try:
 
-        if not api_key:
+        if not api_key_ollama:
             raise ValueError("Aucune clé API Ollama configurée")
 
         client = Client(
