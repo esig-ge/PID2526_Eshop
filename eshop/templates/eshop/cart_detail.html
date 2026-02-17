@@ -41,7 +41,7 @@
         </tfoot>
     </table>
     <div class="text-end">
-        <a href="{% url 'facture' order.id %}" class="btn btn-secondary">Voir la facture</a>
+        <a href="{% url 'facture' %}" class="btn btn-secondary">Voir la facture</a>
         <a href="{% url 'product_list' %}" class="btn btn-secondary">Continuer vos achats</a>
         <form method="post" action="{% url 'checkout' %}" class="d-inline">
             {% csrf_token %}
