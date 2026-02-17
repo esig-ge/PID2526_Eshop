@@ -343,6 +343,10 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
+def ai_settings(request):
+    # Pour l'instant, on renvoie juste un message ou un template vide
+    return render(request, 'eshop/ai_settings.html')
+
 # --------------------------------- modif meg------------------------
 def product_list(request):
     products = Product.objects.all()
