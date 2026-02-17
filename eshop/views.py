@@ -399,7 +399,7 @@ def facture_view(request, order_id):
     return render(request, 'eshop/facture.html', context)
 
 
-def get_aiSettings(request):
+def ai_settings_view(request):
     settings = AiSettings.objects.first()
     if not settings:
         return JsonResponse({"error": "AISettings not found"}, status=404)
