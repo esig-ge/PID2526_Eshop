@@ -1,19 +1,21 @@
 from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from eshop.models import Product, Review, Cart, CartItem, AiSettings
+from django.http import JsonResponse,HttpResponse
+from eshop.models import Product, Review, Cart, CartItem
 from .forms import PostReview, AiSettingsForm
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
 from django.db.models import Q
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 import os
+import stripe
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-
+from django.conf import settings
 
 # Create your views here.
-
 
 def product_list(request):
     products = Product.objects.all()
@@ -153,11 +155,8 @@ def ai_search(request):
 
     try:
 
-        api_key_ollama = os.getenv("API_KEY_OLLAMA")
-        if not api_key_ollama:
-            raise ValueError("API_KEY_OLLAMA not set in environment")
-        
-
+        if not api_key:
+            raise ValueError("Aucune clé API Ollama configurée")
 
         client = Client(
             host="https://ollama.com",
@@ -166,23 +165,23 @@ def ai_search(request):
             }
         )
 
-        # Appel simple et efficace
+        # Ollama API call
         response = client.chat(
             model="gemma3:27b",  # ← this one will need to be a variable taken from the database so the web "admin" can change it
 
             messages=[
-                {
+                {   # Ai instructions -> system role are for those
                     "role": "system",
                     "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
                 },
-                {
+                {   # Actuel Query -> user role is for actual queries
                     "role": "user",
                     "content": query
                 }
             ],
             options={
-                "temperature": 0.7,
-                "num_predict": 180  # LIMITS THE AI, DONT WANT TO HAVE A RESPONSE TOO LONG
+                "temperature": 0.7, # Temperature controls randomness/creativity in the model’s output
+                "num_predict": 180  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
 
@@ -276,6 +275,73 @@ def comparer_clear(request):
 
     return redirect('comparer')
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+@require_POST
+def checkout_create_session(request):
+    # Ton panier semble être en DB (cart_items). Souvent lié à l'utilisateur.
+    # Si c’est bien ça, on filtre par request.user.
+    cart_items = CartItem.objects.filter(user=request.user)
+
+    if not cart_items.exists():
+        return redirect("cart_detail")
+
+    line_items = []
+    for item in cart_items:
+        line_items.append({
+            "price_data": {
+                "currency": "chf",
+                "product_data": {
+                    "name": item.product.name,
+                },
+                "unit_amount": int(round(float(item.product.price) * 100)),  # centimes
+            },
+            "quantity": int(item.quantity),
+        })
+
+    success_url = request.build_absolute_uri(reverse("checkout_success"))
+    cancel_url = request.build_absolute_uri(reverse("checkout_cancel"))
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        payment_method_types=["card"],
+        line_items=line_items,
+        success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=cancel_url,
+    )
+
+    return redirect(session.url, permanent=False)
+
+
+def checkout_success(request):
+    return render(request, "eshop/checkout_success.html")
+
+
+def checkout_cancel(request):
+    return render(request, "eshop/checkout_cancel.html")
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except Exception:
+        return HttpResponse(status=400)
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        user_id = session.get("metadata", {}).get("user_id")
+
+        if user_id:
+            # Exemple : vider le panier après paiement confirmé
+            CartItem.objects.filter(user_id=user_id).delete()
+
+    return HttpResponse(status=200)
 
 # --------------------------------- modif meg------------------------
 def product_list(request):
@@ -306,7 +372,24 @@ def product_list(request):
     #         products = products.filter(availability=True)
     #     elif in_stock == 'false':  # Utilise elif et sors-le du premier bloc if
     #         products = products.filter(availability=False)
+
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
+
+def facture_view(request, order_id):
+    # Si order_id n'existe pas en BDD, ça retourne 404
+    order = get_object_or_404(Order, id=order_id)
+
+    # On vérifie aussi que la facture appartient bien à l'utilisateur connecté
+    if order.user != request.user:
+        from django.http import Http404
+        raise Http404("Vous n'avez pas l'autorisation de voir cette facture.")
+
+    context = {
+        'order': order,
+        'cart_items': order.items.all(),  # On récupère les items liés à la commande
+        'total': order.get_total_cost(),
+    }
+    return render(request, 'eshop/facture.html', context)
 
 
 def ai_settings_view(request):
@@ -323,7 +406,5 @@ def ai_settings_view(request):
             return redirect('ai_settings')  # redirection after updateing !
     else:
         form = AiSettingsForm(instance=settings)
-
+    
     return render(request, 'eshop/ai_settings.html', {'form': form})
-
-
