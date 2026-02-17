@@ -3,7 +3,7 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from eshop.models import Product, Review, Cart, CartItem
-from .forms import PostReview
+from .forms import PostReview, AiSettingsForm
 from django.shortcuts import render, get_object_or_404
 from ollama import Client
 from django.db.models import Q
@@ -392,13 +392,19 @@ def facture_view(request, order_id):
     return render(request, 'eshop/facture.html', context)
 
 
-def get_aiSettings(request):
+def ai_settings_view(request):
     settings = AiSettings.objects.first()
+    
     if not settings:
-        return JsonResponse({"error": "AISettings not found"}, status=404)
-
-    data = {
-        "model": settings.model,
-        "prompt": settings.prompt,
-        }
-    return JsonResponse(data)
+        # If doesn't exist, create a default one (i dont know if its really necessary)
+        settings = AiSettings.objects.create(aiModel="", prompt="")
+    
+    if request.method == 'POST':
+        form = AiSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            return redirect('ai_settings')  # redirection after updateing !
+    else:
+        form = AiSettingsForm(instance=settings)
+    
+    return render(request, 'eshop/ai_settings.html', {'form': form})
