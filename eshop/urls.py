@@ -3,6 +3,7 @@ from eshop import views
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
+    path('product/add/', views.product_create, name='product_create'),
     path('get/<int:pk>/', views.product_details, name='product_details'),
     # Modifier un avis
     path('review/<int:pk>/edit/', views.review_edit, name='review_edit'),

@@ -2,9 +2,8 @@ from json import JSONDecodeError
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
-from eshop.models import Product, Review, Cart, CartItem
-from .forms import PostReview, AiSettingsForm
-from django.shortcuts import render, get_object_or_404
+from eshop.models import Product, Review, Cart, CartItem, AiSettings
+from .forms import PostReview, AiSettingsForm, ProductForm
 from ollama import Client
 from django.db.models import Q
 from django.urls import reverse
@@ -408,3 +407,19 @@ def ai_settings_view(request):
         form = AiSettingsForm(instance=settings)
     
     return render(request, 'eshop/ai_settings.html', {'form': form})
+
+def product_create(request):
+    # Si la requête est en POST, on tente de sauvegarder les données
+    if request.method == 'POST':
+        # request.FILES est obligatoire pour récupérer l'image uploadée
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Redirige vers la liste des produits après un ajout réussi
+            return redirect('product_list') 
+    else:
+        # Si la requête est en GET, on affiche un formulaire vide
+        form = ProductForm()
+
+    # Assurez-vous que le nom du template correspond à votre fichier HTML
+    return render(request, 'eshop/product_form.html', {'form': form})
