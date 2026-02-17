@@ -14,6 +14,8 @@ import stripe
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 # Create your views here.
 
@@ -402,3 +404,24 @@ def get_aiSettings(request):
         "prompt": settings.prompt,
         }
     return JsonResponse(data)
+# #facrure meg
+# def facture_pdf(request, order_id):
+#     # 1. Récupérer la commande
+#     order = get_object_or_404(Order, id=order_id)
+#
+#     # 2. Préparer les données pour le template de facture
+#     context = {'order': order}
+#
+#     # 3. Rendre le template HTML en chaîne de caractères
+#     html_string = render_to_string('eshop/facture_template.html', context)
+#
+#     # 4. Générer le PDF
+#     html = HTML(string=html_string, base_url=request.build_absolute_uri())
+#     pdf = html.write_pdf()
+#
+#     # 5. Renvoyer le fichier PDF
+#     response = HttpResponse(pdf, content_type='application/pdf')
+#     # 'attachment' pour forcer le téléchargement, 'inline' pour l'ouvrir dans le navigateur
+#     response['Content-Disposition'] = f'attachment; filename="facture_{order.id}.pdf"'
+#
+#     return response
