@@ -67,9 +67,9 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
         // Treate the json to show cleanly the name and the price of the product, and make it a link to the product page
         // ------------------------------------------------------
 
-        for (const suggestedProduct in suggestion) {
+        for (const suggestedProduct of suggestion) {
 
-        if (suggestion.name) {
+        if (suggestedProduct.name) {
             const card = document.createElement("div");
             card.style.padding = "16px";
             card.style.background = "#ffffff";
@@ -83,10 +83,10 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
             card.addEventListener("mouseout", () => { card.style.transform = "scale(1)"; });
 
             // Image (if available)
-            if (suggestion.img_url) {
+            if (suggestedProduct.img_url) {
                 const img = document.createElement("img");
-                img.src = suggestion.img_url;
-                img.alt = suggestion.name;
+                img.src = suggestedProduct.img_url;
+                img.alt = suggestedProduct.name;
                 img.style.width = "100%";
                 img.style.height = "auto";
                 img.style.borderRadius = "8px";
@@ -96,11 +96,10 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
 
             // Title and Price as link
             const link = document.createElement("a");
-            link.href = suggestion.link;
+            link.href = suggestedProduct.link;
             link.style.textDecoration = "none";
             link.style.color = "#2c3e50";
             link.style.display = "block";
-            // doesn't work ? 
             link.target = "_blank";
             link.innerHTML = `
             <h3 style="margin: 0; font-size: 1.2em; font-weight: 600;">${suggestedProduct.name}</h3>
@@ -120,7 +119,7 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
             }
 
             // Make the whole card clickable (redirect to link)
-            card.addEventListener("click", () => { window.location.href = suggestedProduct.link; });
+            card.addEventListener("click", () => { window.open(suggestedProduct.link, "_blank");});
 
             resultsContainer.appendChild(card);
             }
