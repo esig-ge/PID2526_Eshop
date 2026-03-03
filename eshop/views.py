@@ -399,13 +399,14 @@ def facture_view(request, order_id):
     return render(request, 'eshop/facture.html', context)
 
 
+@login_required
 def ai_settings_view(request):
     settings = AiSettings.objects.first()
     if not settings:
         return JsonResponse({"error": "AISettings not found"}, status=404)
 
     data = {
-        "model": settings.model,
+        "model": settings.aiModel,
         "prompt": settings.prompt,
         }
     return JsonResponse(data)
