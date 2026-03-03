@@ -363,13 +363,23 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
+    order = None
+    items = []
+
     if request.user.is_authenticated:
+        order = Order.objects.filter(user=request.user).order_by("-created_at").first()
+
+        if order:
+            items = order.items.all()
+
         cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
         if cart:
             CartItem.objects.filter(cart=cart).delete()
 
-    return render(request, "eshop/checkout_success.html")
-
+    return render(request, "eshop/checkout_success.html", {
+        'order': order,
+        'items': items
+    })
 
 def checkout_cancel(request):
     return render(request, "eshop/checkout_cancel.html")
@@ -427,34 +437,34 @@ def product_list(request):
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
 
-def get_facture():
-    facture = order.get_object_or_404
-    return facture
 
-
-def facture_view(request, order_id):
-    # Si order_id n'existe pas en BDD, ça retourne 404
+def facture_demo(request, order_id):
+    # On récupère la commande existante en BDD via l'ID passé dans l'URL
     order = get_object_or_404(Order, id=order_id)
 
-    # On vérifie aussi que la facture appartient bien à l'utilisateur connecté
-    if order.user != request.user:
-        from django.http import Http404
-        raise Http404("Vous n'avez pas l'autorisation de voir cette facture.")
-
+    # On prépare les données pour le HTML
     context = {
         'order': order,
-        'cart_items': order.items.all(),  # On récupère les items liés à la commande
-        'total': order.get_total_cost(),
+        'items': order.items.all(),  # Récupère les lignes de la commande
     }
+
     return render(request, 'eshop/facture_demo.html', context)
 
+def cart_detail(request):
+    # ... votre logique ...
+    # Ajoutez ceci pour tester dans votre terminal :
+    print(f"DEBUG: L'ID de la commande est : {commande.id}")
+    return render(request, 'cart_detail.html', {'commande': commande})
 
-def facture_demo(request,order_id):
-    context = {
-        'order': {'id': order_id, 'created_at': '2026-03-03'},
-        'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
-    }
-    return render(request, 'eshop/facture_demo.html', context)
+
+
+# facture sans les données
+# def facture_demo(request,order_id):
+#     context = {
+#         'order': {'id': order_id, 'created_at': '2026-03-03'},
+#         'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
+#     }
+#     return render(request, 'eshop/facture_demo.html', context)
 # ---------------------------------fin modif meg------------------------
 
 
