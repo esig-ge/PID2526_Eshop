@@ -18,15 +18,21 @@ from django.conf import settings
 
 # Create your views here.
 
-def product_list(request):
+
+def get_all_products():
     products = Product.objects.all()
+    return products
+
+
+def product_list(request):
+    products = get_all_products()
     return render(request, "eshop/product_list.html", {'products': products})
 
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
     reviews = Review.objects.filter(product=product)
 
-# Post generé par IA ChatGPT
+# Generated via AI
     if request.method == 'POST':
         form = PostReview(request.POST)
         if form.is_valid():
@@ -166,6 +172,14 @@ def ai_search(request):
             }
         )
 
+        # Suppose get_all_products() retourne Product.objects.all()
+        
+        products_list = list(get_all_products().values())
+
+        catalog = json.dumps(products_list)
+
+
+
         # Ollama API call
         response = client.chat(
             model="gemma3:27b",  # ← this one will need to be a variable taken from the database so the web "admin" can change it
@@ -175,15 +189,16 @@ def ai_search(request):
                     "role": "system",
                     "content": """
                             Tu es un assistant de boutique en ligne.
-                            Recuper les produit de ce site uniquement https://anthoooo87.pythonanywhere.com/
                             Réponds uniquement avec un JSON valide.
-                            Retourne STRICTEMENT un tableau JSON contenant exactement 3 produits (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
+                            Retourne STRICTEMENT un tableau JSON contenant exactement 3 produits et renvoie leur lien précis (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
             
+                            utilise UNIQUEMENT ce catalogue de produits, n'invente pas et va pas chercher sur des site en ligne :[ {catalog} ]
+
                             Format exact attendu :
                             [
                               {
                                 "name": "",
-                                "link": "",
+                                "link": "exemple : https://anthoooo87.pythonanywhere.com//get/1 (1 est l'id précis du produit)",
                                 "price": "",
                                 "resume": "",
                                 "img_url": ""
