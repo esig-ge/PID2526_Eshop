@@ -461,7 +461,7 @@ def cart_detail(request):
                 if callable(item.sub_total)
                 else item.sub_total
                 for item in cart_items)
-    return render(request, 'cart_detail.html',{
+    return render(request, 'eshop/cart_detail.html',{
         'cart': cart,
         'cart_items': cart_items,
         'total': total
