@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import os
 import stripe
+from eshop.models import Order
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -348,9 +349,8 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
-    order = None
     items = []
-
+    order = None
     if request.user.is_authenticated:
         order = Order.objects.filter(user=request.user).order_by("-created_at").first()
 
@@ -436,10 +436,21 @@ def facture_demo(request, order_id):
     return render(request, 'eshop/facture_demo.html', context)
 
 def cart_detail(request):
-    # ... votre logique ...
-    # Ajoutez ceci pour tester dans votre terminal :
-    print(f"DEBUG: L'ID de la commande est : {commande.id}")
-    return render(request, 'cart_detail.html', {'commande': commande})
+    cart, created = Cart.objects.get_or_create(owner=request.user)
+
+    # On récupère les articles
+    cart_items = CartItem.objects.filter(cart=cart)
+
+    # On calcule le total (Assure-tu que sub_total est une fonction ou propriété dans ton model)
+    total = sum(item.sub_total()
+                if callable(item.sub_total)
+                else item.sub_total
+                for item in cart_items)
+    return render(request, 'cart_detail.html',{
+        'cart': cart,
+        'cart_items': cart_items,
+        'total': total
+    })
 
 
 
