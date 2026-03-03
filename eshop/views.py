@@ -348,6 +348,11 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
+        if cart:
+            CartItem.objects.filter(cart=cart).delete()
+
     return render(request, "eshop/checkout_success.html")
 
 
@@ -426,8 +431,15 @@ def facture_view(request, order_id):
         'cart_items': order.items.all(),  # On récupère les items liés à la commande
         'total': order.get_total_cost(),
     }
-    return render(request, 'eshop/facture.html', context)
+    return render(request, 'eshop/facture_demo.html', context)
 
+
+def facture_demo(request,order_id):
+    context = {
+        'order': {'id': order_id, 'created_at': '2026-03-03'},
+        'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
+    }
+    return render(request, 'eshop/facture_demo.html', context)
 # ---------------------------------fin modif meg------------------------
 
 
