@@ -172,7 +172,27 @@ def ai_search(request):
             messages=[
                 {   # Ai instructions -> system role are for those
                     "role": "system",
-                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande trois produit en me retournant pour chacun un json avec name ,link ,price ,resume , img_url"
+                    "content": """
+                            Tu es un assistant de boutique en ligne.
+                            Recuper les produit de ce site uniquement https://anthoooo87.pythonanywhere.com/
+                            Réponds uniquement avec un JSON valide.
+                            Retourne STRICTEMENT un tableau JSON contenant exactement 3 produits (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
+            
+                            Format exact attendu :
+                            [
+                              {
+                                "name": "",
+                                "link": "",
+                                "price": "",
+                                "resume": "",
+                                "img_url": ""
+                              }
+                            ]
+                            Aucun texte avant.
+                            Aucun texte après.
+                            Aucune explication.
+                            Pas de markdown.
+                            """
                 },
                 {   # Actuel Query -> user role is for actual queries
                     "role": "user",
@@ -181,7 +201,7 @@ def ai_search(request):
             ],
             options={
                 "temperature": 0.7, # Temperature controls randomness/creativity in the model’s output
-                "num_predict": 180  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
+                "num_predict": 500  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
 
@@ -206,16 +226,19 @@ def ai_search(request):
                 }
 
             # Clean and standardize the dict (e.g., ensure all keys exist, add defaults if missing)
-        clean_dict = {
-            "name": parsed_data.get("name", "Produit inconnu"),
-            "link": parsed_data.get("link", ""),
-            "price": parsed_data.get("price", "Prix indisponible"),
-            "resume": parsed_data.get("resume", "Pas de résumé disponible"),
-            "img_url": parsed_data.get("img_url", "")
-            }
 
-            # Wrap in a consistent format for JS (e.g., as results list with one item)
-        return JsonResponse({"results": [clean_dict]})
+        clean_results = []
+
+        for product in parsed_data:
+            clean_results.append({
+                "name": product.get("name", "Produit inconnu"),
+                "link": product.get("link", ""),
+                 "price": product.get("price", "Prix indisponible"),
+                "resume": product.get("resume", "Pas de résumé disponible"),
+                "img_url": product.get("img_url", "")
+            })
+
+        return JsonResponse({"results": clean_results})
 
     except Exception as e:
         import traceback
@@ -223,6 +246,8 @@ def ai_search(request):
         print(traceback.format_exc())
 
         return JsonResponse({"results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],"error": True}, status=503)
+
+
 
 def _get_compare_ids(request):
     compare_ids = request.session.get('compare_ids', [])
