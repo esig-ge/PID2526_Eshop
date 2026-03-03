@@ -387,34 +387,26 @@ def product_list(request):
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
 
-def get_facture():
-    facture = order.get_object_or_404
-    return facture
 
-
-def facture_view(request, order_id):
-    # Si order_id n'existe pas en BDD, ça retourne 404
+def facture_demo(request, order_id):
+    # On récupère la commande existante en BDD via l'ID passé dans l'URL
     order = get_object_or_404(Order, id=order_id)
 
-    # On vérifie aussi que la facture appartient bien à l'utilisateur connecté
-    if order.user != request.user:
-        from django.http import Http404
-        raise Http404("Vous n'avez pas l'autorisation de voir cette facture.")
-
+    # On prépare les données pour le HTML
     context = {
         'order': order,
-        'cart_items': order.items.all(),  # On récupère les items liés à la commande
-        'total': order.get_total_cost(),
+        'items': order.items.all(),  # Récupère les lignes de la commande
     }
+
     return render(request, 'eshop/facture_demo.html', context)
 
-
-def facture_demo(request,order_id):
-    context = {
-        'order': {'id': order_id, 'created_at': '2026-03-03'},
-        'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
-    }
-    return render(request, 'eshop/facture_demo.html', context)
+# facture sans les données
+# def facture_demo(request,order_id):
+#     context = {
+#         'order': {'id': order_id, 'created_at': '2026-03-03'},
+#         'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
+#     }
+#     return render(request, 'eshop/facture_demo.html', context)
 # ---------------------------------fin modif meg------------------------
 
 
