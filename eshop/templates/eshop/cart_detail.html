@@ -41,11 +41,10 @@
         </tfoot>
     </table>
     <div class="text-end">
-        {% if get_facture == 0 %}
         <a href="{% url 'facture' last_order.id %}" class="btn btn-secondary">
             <i class="fa fa-file-invoice"></i> Voir ma facture
         </a>
-    {% endif %}
+
 
         <a href="{% url 'product_list' %}" class="btn btn-secondary">Continuer vos achats</a>
         <form method="post" action="{% url 'checkout' %}" class="d-inline">
