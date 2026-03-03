@@ -382,6 +382,11 @@ def product_list(request):
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
 
+def get_facture():
+    facture = order.get_object_or_404
+    return facture
+
+
 def facture_view(request, order_id):
     # Si order_id n'existe pas en BDD, ça retourne 404
     order = get_object_or_404(Order, id=order_id)
@@ -398,6 +403,7 @@ def facture_view(request, order_id):
     }
     return render(request, 'eshop/facture.html', context)
 
+# ---------------------- fin modif megane---------------------------------------------------------------
 
 def ai_settings_view(request):
     settings = AiSettings.objects.first()
