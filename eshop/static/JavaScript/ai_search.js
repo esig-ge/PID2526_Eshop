@@ -60,12 +60,14 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
             return;
         }
 
-        // take the element at index 0 (the one we need) and display it
-        const suggestion = data.results[0];
+        // simplifie data results
+        const suggestion = data.results;
 
         // ------------------------------------------------------
         // Treate the json to show cleanly the name and the price of the product, and make it a link to the product page
         // ------------------------------------------------------
+
+        for (const suggestedProduct in suggestion) {
 
         if (suggestion.name) {
             const card = document.createElement("div");
@@ -101,26 +103,27 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
             // doesn't work ? 
             link.target = "_blank";
             link.innerHTML = `
-            <h3 style="margin: 0; font-size: 1.2em; font-weight: 600;">${suggestion.name}</h3>
-            <span style="color: #27ae60; font-size: 1.1em; font-weight: 500;">${suggestion.prix} CHF</span>
+            <h3 style="margin: 0; font-size: 1.2em; font-weight: 600;">${suggestedProduct.name}</h3>
+            <span style="color: #27ae60; font-size: 1.1em; font-weight: 500;">${suggestedProduct.price} CHF</span>
         `;
             card.appendChild(link);
 
             // Resume (description)
-            if (suggestion.resume) {
+            if (suggestedProduct.resume) {
                 const p = document.createElement("p");
                 p.style.marginTop = "8px";
                 p.style.color = "#555";
                 p.style.fontSize = "0.9em";
                 p.style.lineHeight = "1.4";
-                p.textContent = suggestion.resume;
+                p.textContent = suggestedProduct.resume;
                 card.appendChild(p);
             }
 
             // Make the whole card clickable (redirect to link)
-            card.addEventListener("click", () => { window.location.href = suggestion.link; });
+            card.addEventListener("click", () => { window.location.href = suggestedProduct.link; });
 
             resultsContainer.appendChild(card);
+            }
         }
 
     } catch (err) {

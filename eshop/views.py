@@ -172,7 +172,7 @@ def ai_search(request):
             messages=[
                 {   # Ai instructions -> system role are for those
                     "role": "system",
-                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande un produit en me retournant un json avec name ,link ,prix ,resume , img_url"
+                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande trois produit en me retournant pour chacun un json avec name ,link ,price ,resume , img_url"
                 },
                 {   # Actuel Query -> user role is for actual queries
                     "role": "user",
@@ -200,7 +200,7 @@ def ai_search(request):
                 parsed_data = {
                     "name": "Erreur de parsing",
                     "link": "",
-                    "prix": "",
+                    "price": "",
                     "resume": answer,  # put the raw answer here
                     "img_url": ""
                 }
@@ -209,7 +209,7 @@ def ai_search(request):
         clean_dict = {
             "name": parsed_data.get("name", "Produit inconnu"),
             "link": parsed_data.get("link", ""),
-            "prix": parsed_data.get("prix", "Prix indisponible"),
+            "price": parsed_data.get("price", "Prix indisponible"),
             "resume": parsed_data.get("resume", "Pas de résumé disponible"),
             "img_url": parsed_data.get("img_url", "")
             }
