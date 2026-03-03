@@ -382,6 +382,11 @@ def product_list(request):
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
 
+def get_facture():
+    facture = order.get_object_or_404
+    return facture
+
+
 def facture_view(request, order_id):
     # Si order_id n'existe pas en BDD, ça retourne 404
     order = get_object_or_404(Order, id=order_id)
@@ -397,6 +402,9 @@ def facture_view(request, order_id):
         'total': order.get_total_cost(),
     }
     return render(request, 'eshop/facture.html', context)
+
+# ---------------------------------fin modif meg------------------------
+
 
 
 @login_required
