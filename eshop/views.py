@@ -403,7 +403,9 @@ def facture_view(request, order_id):
     }
     return render(request, 'eshop/facture.html', context)
 
-# ---------------------- fin modif megane---------------------------------------------------------------
+# ---------------------------------fin modif meg------------------------
+
+
 
 @login_required
 def ai_settings_view(request):
