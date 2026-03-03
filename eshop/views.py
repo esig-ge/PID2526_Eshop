@@ -323,6 +323,11 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
+        if cart:
+            CartItem.objects.filter(cart=cart).delete()
+
     return render(request, "eshop/checkout_success.html")
 
 
