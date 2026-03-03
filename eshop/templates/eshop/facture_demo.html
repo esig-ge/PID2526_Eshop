@@ -33,7 +33,7 @@
                     <tr>
                         <td>{{ item.product.name }}</td>
                         <td class="text-center">{{ item.quantity }}</td>
-                        <td class="text-end">{{ item.price|foatformat:2 }} CHF</td>
+                        <td class="text-end">{{ item.price|floatformat:2 }} CHF</td>
                         <td class="text-end">{{ item.get_cost }} CHF</td>
                     </tr>
                     {% empty %}

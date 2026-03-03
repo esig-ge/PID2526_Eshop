@@ -42,9 +42,7 @@
     </table>
     <div class="text-end">
 
-<a href="{% url 'facture_demo' order.id %}" class="btn btn-success">
-    <i class="fa fa-file-invoice"></i> Voir l'aperçu de ma facture
-</a>
+
 
         <a href="{% url 'product_list' %}" class="btn btn-secondary">Continuer vos achats</a>
         <form method="post" action="{% url 'checkout' %}" class="d-inline">

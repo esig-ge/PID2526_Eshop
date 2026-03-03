@@ -348,13 +348,23 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
+    order = None
+    items = []
+
     if request.user.is_authenticated:
+        order = Order.objects.filter(user=request.user).order_by("-created_at").first()
+
+        if order:
+            items = order.items.all()
+
         cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
         if cart:
             CartItem.objects.filter(cart=cart).delete()
 
-    return render(request, "eshop/checkout_success.html")
-
+    return render(request, "eshop/checkout_success.html", {
+        'order': order,
+        'items': items
+    })
 
 def checkout_cancel(request):
     return render(request, "eshop/checkout_cancel.html")
@@ -424,6 +434,14 @@ def facture_demo(request, order_id):
     }
 
     return render(request, 'eshop/facture_demo.html', context)
+
+def cart_detail(request):
+    # ... votre logique ...
+    # Ajoutez ceci pour tester dans votre terminal :
+    print(f"DEBUG: L'ID de la commande est : {commande.id}")
+    return render(request, 'cart_detail.html', {'commande': commande})
+
+
 
 # facture sans les données
 # def facture_demo(request,order_id):

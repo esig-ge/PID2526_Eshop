@@ -2,6 +2,7 @@
 {% block content %}
 <div class="container my-5 text-center">
   <h2>Paiement réussi ✅</h2>
+    <a href="{% url 'facture_demo' {{ order.id }} %}">Voir la facture</a>
   <a class="btn btn-primary mt-3" href="{% url 'product_list' %}">Retour boutique</a>
 </div>
 {% endblock %}
