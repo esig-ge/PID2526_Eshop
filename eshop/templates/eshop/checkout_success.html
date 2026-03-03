@@ -1,8 +1,11 @@
 {% extends 'eshop/header.html' %}
 {% block content %}
 <div class="container my-5 text-center">
-  <h2>Paiement réussi ✅</h2>
-    <a href="{% url 'facture_demo' order.id  %}">Voir la facture</a>
-  <a class="btn btn-primary mt-3" href="{% url 'product_list' %}">Retour boutique</a>
+  <h2>Paiement réussi ✅</h2>{% if order %}
+    <a href="{% url 'facture_demo' order.id %}" class="btn btn-outline-dark">Voir la facture</a>
+{% else %}
+    <p class="text-muted">Votre commande est en cours de validation... Elle apparaîtra ici bientôt !</p>
+    <a class="btn btn-primary mt-3" href="{% url 'product_list' %}">Retour boutique</a>
+{% endif %}
 </div>
 {% endblock %}

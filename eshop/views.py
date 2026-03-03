@@ -332,6 +332,22 @@ def checkout_create_session(request):
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     if not cart_items.exists():
         return redirect("cart_detail")
+        # On crée la commande en base de données TOUT DE SUITE
+        order = Order.objects.create(user=request.user)
+
+        line_items = []
+        for item in cart_items:
+            # Optionnel : Si tu as un modèle OrderItem, tu peux enregistrer les produits ici :
+            # OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+
+            line_items.append({
+                "price_data": {
+                    "currency": "chf",
+                    "product_data": {"name": item.product.name},
+                    "unit_amount": int(round(float(item.product.price) * 100)),
+                },
+                "quantity": int(item.quantity),
+            })
 
     line_items = []
     for item in cart_items:
