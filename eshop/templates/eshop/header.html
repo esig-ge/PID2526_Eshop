@@ -12,37 +12,37 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100 bg-light">
-
     <header class="bg-primary text-white py-5 text-center">
-        <div class="container">
-            <h1 class="display-4 fw-bold">Bienvenue dans notre Eshop !</h1>
-            <p class="lead">Ici, vous trouverez tout ce dont vous avez besoin.</p>
-            <a class="text-white" href="{% url 'ai_settings' %}">Options d'IA (Admin)</a>
+        <div class="bg-primary text-end py-2 pe-4 sticky-top">
+            <a href="{% url 'cart_detail' %}"
+                class="text-white text-decoration-none btn btn-outline-light position-relative">
+                <i class="fa fa-shopping-cart"></i> Panier
+                {% if cart|length > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ cart|length }}
+                </span>
+                {% endif %}
+            </a>
+            <a href="{% url 'comparer' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Comparateur</a>
+            {% if user.is_authenticated %}
+                <span class="text-white ms-3 me-2">Bonjour, {{ user.username }}</span>
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se déconnecter</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se connecter</a>
+                <a href="{% url 'register' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">S'inscrire</a>
+            {% endif %}
+
+            <div class="container">
+                <h1 class="display-4 fw-bold">Bienvenue dans notre Eshop !</h1>
+                <p class="lead">Ici, vous trouverez tout ce dont vous avez besoin.</p>
+                <a class="text-white" href="{% url 'ai_settings' %}">Options d'IA (Admin)</a>
+            </div>
+        
         </div>
     </header>
-    <div class="bg-primary text-end py-2 pe-4 sticky-top">
-        <a href="{% url 'cart_detail' %}"
-            class="text-white text-decoration-none btn btn-outline-light position-relative">
-            <i class="fa fa-shopping-cart"></i> Panier
-            {% if cart|length > 0 %}
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ cart|length }}
-            </span>
-            {% endif %}
-        </a>
-        <a href="{% url 'comparer' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Comparateur</a>
-        {% if user.is_authenticated %}
-            <span class="text-white ms-3 me-2">Bonjour, {{ user.username }}</span>
-            <form action="{% url 'logout' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se déconnecter</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se connecter</a>
-            <a href="{% url 'register' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">S'inscrire</a>
-        {% endif %}
-    </div>
-
     {% block content %}
     {% endblock %}
 
