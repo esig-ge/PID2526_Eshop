@@ -15,6 +15,8 @@ from eshop.models import Order
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from .forms import RegisterForm
+from django.contrib.auth import login
 
 # Create your views here.
 
@@ -472,6 +474,7 @@ def facture_demo(request, order_id):
 
     return render(request, 'eshop/facture_demo.html', context)
 
+@login_required
 def cart_detail(request):
     cart, created = Cart.objects.get_or_create(owner=request.user)
 
@@ -513,3 +516,14 @@ def ai_settings_view(request):
         "prompt": settings.prompt,
         }
     return JsonResponse(data)
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('product_list')
+    else:
+        form = RegisterForm()
+    return render(request, 'eshop/register.html', {'form': form})

@@ -28,11 +28,19 @@ To access the `/admin` interface, you need to create a superuser account. Run th
 ## API Key Setup
 
 ### 1. Set the environment variable
+
+**For Windows:**
 Open PowerShell and run the following command (replace "your-api-key-here" with your actual key):
 
     setx API_KEY_OLLAMA "your-api-key-here"
 
 *(Note: You may need to restart your terminal or IDE after running this command.)*
+
+**For Linux / macOS / PythonAnywhere:**
+Open your terminal (Bash) and run the following commands:
+
+    echo 'export API_KEY_OLLAMA="your-api-key-here"' >> ~/.bashrc
+    source ~/.bashrc
 
 ### 2. Python Implementation
 In your Python file, use the following code to retrieve the key:

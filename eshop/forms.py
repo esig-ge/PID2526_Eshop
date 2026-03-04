@@ -1,6 +1,8 @@
 from django import forms
 import re
 from .models import Review, AiSettings, Product
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -43,3 +45,14 @@ class AiSettingsForm(forms.ModelForm):
             'aiModel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du modèle AI'}),
             'prompt': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Prompt par défaut'}),
         }
+
+
+class RegisterForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control form-control-lg'
