@@ -326,35 +326,27 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @require_POST
 def checkout_create_session(request):
     if not request.user.is_authenticated:
-        return redirect("login")  # ou la route login de ton projet
+        return redirect("login")
 
-    # Récupérer le panier de l'utilisateur (le plus récent)
     cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
-    if not cart:
+    if not cart or not cart.cartitem_set.exists():
         return redirect("cart_detail")
     order = Order.objects.create(user=request.user)
-
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
-    if not cart_items.exists():
-        return redirect("cart_detail")
-        # On crée la commande en base de données TOUT DE SUITE
-        order = Order.objects.create(user=request.user)
-
-        line_items = []
-        for item in cart_items:
-            # Optionnel : Si tu as un modèle OrderItem, tu peux enregistrer les produits ici :
-            # OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-            line_items.append({
-                "price_data": {
-                    "currency": "chf",
-                    "product_data": {"name": item.product.name},
-                    "unit_amount": int(round(float(item.product.price) * 100)),
-                },
-                "quantity": int(item.quantity),
-            })
-
     line_items = []
+    # 2. ON BOUCLE POUR REMPLIR LA COMMANDE ET STRIPE
     for item in cart_items:
+        # --- CETTE LIGNE EST CRUCIALE ---
+        # Remplace 'OrderItem' par le nom exact de ton modèle qui lie Order et Product
+        # Si tu n'as pas de modèle OrderItem, dis-le moi, mais c'est le standard Django.
+        from eshop.models import OrderItem # Importe-le si nécessaire
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price=item.product.price # On fige le prix au moment de l'achat
+        )
+
         line_items.append({
             "price_data": {
                 "currency": "chf",
@@ -373,9 +365,8 @@ def checkout_create_session(request):
         line_items=line_items,
         success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
         cancel_url=cancel_url,
-        # important pour le webhook (identifier le panier)
         metadata={
-            "cart_id": str(cart.id),
+            "order_id": str(order.id), # On passe l'ID de la commande à Stripe
             "owner_id": str(request.user.id),
         }
     )
@@ -384,17 +375,22 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
-    items = []
     order = None
+    items = []
+
     if request.user.is_authenticated:
+        # On récupère la toute dernière commande de l'utilisateur
         order = Order.objects.filter(user=request.user).order_by("-created_at").first()
 
         if order:
+            # On récupère les items liés à CETTE commande précise
+            # .items est le related_name défini dans ton modèle OrderItem
             items = order.items.all()
 
-        cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
-        if cart:
-            CartItem.objects.filter(cart=cart).delete()
+            # On vide le panier seulement SI une commande a été trouvée
+            cart = Cart.objects.filter(owner=request.user).first()
+            if cart:
+                CartItem.objects.filter(cart=cart).delete()
 
     return render(request, "eshop/checkout_success.html", {
         'order': order,
