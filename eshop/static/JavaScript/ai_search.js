@@ -75,10 +75,24 @@ async function searchAI() {
                 // Image
                 if (suggestedProduct.img_url) {
                     const img = document.createElement("img");
-                    img.src = suggestedProduct.img_url.trim(); // trim just in case
-                    img.className = "card-img-top";
+                    img.src = "/media/" + suggestedProduct.img_url.trim(); // trim just in case
+                    img.className = "card-img-top align-self-center";
+                    img.style.objectFit = "cover";
+                    img.style.height = "200px";
+                    img.style.width = "200px";
                     img.alt = suggestedProduct.name;
                     card.appendChild(img);
+                } else {
+                    const placeholder = document.createElement("div");
+                    placeholder.style.height = "200px";
+                    placeholder.style.width = "200px";
+                    placeholder.style.backgroundColor = "#f0f0f0";
+                    placeholder.style.display = "flex";
+                    placeholder.style.alignItems = "center";
+                    placeholder.style.justifyContent = "center";
+                    placeholder.className = "card-img-top align-self-center";
+                    placeholder.textContent = "Pas d'image disponible.";
+                    card.appendChild(placeholder);
                 }
 
                 const cardBody = document.createElement("div");
