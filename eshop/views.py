@@ -11,21 +11,28 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import os
 import stripe
+from eshop.models import Order
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 # Create your views here.
 
-def product_list(request):
+
+def get_all_products():
     products = Product.objects.all()
+    return products
+
+
+def product_list(request):
+    products = get_all_products()
     return render(request, "eshop/product_list.html", {'products': products})
 
 def product_details(request, pk):
     product = get_object_or_404(Product, pk=pk)
     reviews = Review.objects.filter(product=product)
 
-# Post generé par IA ChatGPT
+# Generated via AI
     if request.method == 'POST':
         form = PostReview(request.POST)
         if form.is_valid():
@@ -167,6 +174,14 @@ def ai_search(request):
             }
         )
 
+        # Suppose get_all_products() retourne Product.objects.all()
+        
+        products_list = list(get_all_products().values())
+
+        catalog = json.dumps(products_list)
+
+
+
         # Ollama API call
         response = client.chat(
             model="gemma3:27b",  # ← this one will need to be a variable taken from the database so the web "admin" can change it
@@ -174,7 +189,28 @@ def ai_search(request):
             messages=[
                 {   # Ai instructions -> system role are for those
                     "role": "system",
-                    "content": "Tu es un assistant de boutique en ligne très direct. Réponds en français, court et utile. Recommande trois produit en me retournant pour chacun un json avec name ,link ,price ,resume , img_url"
+                    "content": """
+                            Tu es un assistant de boutique en ligne.
+                            Réponds uniquement avec un JSON valide.
+                            Retourne STRICTEMENT un tableau JSON contenant exactement 3 produits et renvoie leur lien précis (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
+            
+                            utilise UNIQUEMENT ce catalogue de produits, n'invente pas et va pas chercher sur des site en ligne :[ {catalog} ]
+
+                            Format exact attendu :
+                            [
+                              {
+                                "name": "",
+                                "link": "exemple : https://anthoooo87.pythonanywhere.com//get/1 (1 est l'id précis du produit)",
+                                "price": "",
+                                "resume": "",
+                                "img_url": ""
+                              }
+                            ]
+                            Aucun texte avant.
+                            Aucun texte après.
+                            Aucune explication.
+                            Pas de markdown.
+                            """
                 },
                 {   # Actuel Query -> user role is for actual queries
                     "role": "user",
@@ -183,7 +219,7 @@ def ai_search(request):
             ],
             options={
                 "temperature": 0.7, # Temperature controls randomness/creativity in the model’s output
-                "num_predict": 180  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
+                "num_predict": 500  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
 
@@ -208,16 +244,19 @@ def ai_search(request):
                 }
 
             # Clean and standardize the dict (e.g., ensure all keys exist, add defaults if missing)
-        clean_dict = {
-            "name": parsed_data.get("name", "Produit inconnu"),
-            "link": parsed_data.get("link", ""),
-            "price": parsed_data.get("price", "Prix indisponible"),
-            "resume": parsed_data.get("resume", "Pas de résumé disponible"),
-            "img_url": parsed_data.get("img_url", "")
-            }
 
-            # Wrap in a consistent format for JS (e.g., as results list with one item)
-        return JsonResponse({"results": [clean_dict]})
+        clean_results = []
+
+        for product in parsed_data:
+            clean_results.append({
+                "name": product.get("name", "Produit inconnu"),
+                "link": product.get("link", ""),
+                 "price": product.get("price", "Prix indisponible"),
+                "resume": product.get("resume", "Pas de résumé disponible"),
+                "img_url": product.get("img_url", "")
+            })
+
+        return JsonResponse({"results": clean_results})
 
     except Exception as e:
         import traceback
@@ -225,6 +264,8 @@ def ai_search(request):
         print(traceback.format_exc())
 
         return JsonResponse({"results": [f"Erreur : impossible de contacter l'IA pour le moment ({str(e)})"],"error": True}, status=503)
+
+
 
 def _get_compare_ids(request):
     compare_ids = request.session.get('compare_ids', [])
@@ -293,6 +334,22 @@ def checkout_create_session(request):
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     if not cart_items.exists():
         return redirect("cart_detail")
+        # On crée la commande en base de données TOUT DE SUITE
+        order = Order.objects.create(user=request.user)
+
+        line_items = []
+        for item in cart_items:
+            # Optionnel : Si tu as un modèle OrderItem, tu peux enregistrer les produits ici :
+            # OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+
+            line_items.append({
+                "price_data": {
+                    "currency": "chf",
+                    "product_data": {"name": item.product.name},
+                    "unit_amount": int(round(float(item.product.price) * 100)),
+                },
+                "quantity": int(item.quantity),
+            })
 
     line_items = []
     for item in cart_items:
@@ -325,8 +382,22 @@ def checkout_create_session(request):
 
 
 def checkout_success(request):
-    return render(request, "eshop/checkout_success.html")
+    items = []
+    order = None
+    if request.user.is_authenticated:
+        order = Order.objects.filter(user=request.user).order_by("-created_at").first()
 
+        if order:
+            items = order.items.all()
+
+        cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
+        if cart:
+            CartItem.objects.filter(cart=cart).delete()
+
+    return render(request, "eshop/checkout_success.html", {
+        'order': order,
+        'items': items
+    })
 
 def checkout_cancel(request):
     return render(request, "eshop/checkout_cancel.html")
@@ -388,27 +459,45 @@ def product_list(request):
 
     return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
 
-def get_facture():
-    facture = order.get_object_or_404
-    return facture
 
-
-def facture_view(request, order_id):
-    # Si order_id n'existe pas en BDD, ça retourne 404
+def facture_demo(request, order_id):
+    # On récupère la commande existante en BDD via l'ID passé dans l'URL
     order = get_object_or_404(Order, id=order_id)
 
-    # On vérifie aussi que la facture appartient bien à l'utilisateur connecté
-    if order.user != request.user:
-        from django.http import Http404
-        raise Http404("Vous n'avez pas l'autorisation de voir cette facture.")
-
+    # On prépare les données pour le HTML
     context = {
         'order': order,
-        'cart_items': order.items.all(),  # On récupère les items liés à la commande
-        'total': order.get_total_cost(),
+        'items': order.items.all(),  # Récupère les lignes de la commande
     }
-    return render(request, 'eshop/facture.html', context)
 
+    return render(request, 'eshop/facture_demo.html', context)
+
+def cart_detail(request):
+    cart, created = Cart.objects.get_or_create(owner=request.user)
+
+    # On récupère les articles
+    cart_items = CartItem.objects.filter(cart=cart)
+
+    # On calcule le total (Assure-tu que sub_total est une fonction ou propriété dans ton model)
+    total = sum(item.sub_total()
+                if callable(item.sub_total)
+                else item.sub_total
+                for item in cart_items)
+    return render(request, 'eshop/cart_detail.html',{
+        'cart': cart,
+        'cart_items': cart_items,
+        'total': total
+    })
+
+
+
+# facture sans les données
+# def facture_demo(request,order_id):
+#     context = {
+#         'order': {'id': order_id, 'created_at': '2026-03-03'},
+#         'items': [],  # Liste vide pour ne pas faire d'erreur sur le {% for %}
+#     }
+#     return render(request, 'eshop/facture_demo.html', context)
 # ---------------------------------fin modif meg------------------------
 
 

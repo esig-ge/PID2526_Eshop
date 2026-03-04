@@ -17,12 +17,12 @@ urlpatterns = [
     path('comparer/add/<int:pk>/', views.comparer_add, name='comparer_add'),
     path('comparer/remove/<int:pk>/', views.comparer_remove, name='comparer_remove'),
     path('comparer/clear/', views.comparer_clear, name='comparer_clear'),
-    path('facture/<int:order_id>/', views.facture_view, name='facture'),
+    #path('facture/<int:order_id>/', views.facture_view, name='facture'),
     path("checkout/", views.checkout_create_session, name="checkout"),
     path("checkout/success/", views.checkout_success, name="checkout_success"),
     path("checkout/cancel/", views.checkout_cancel, name="checkout_cancel"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
-    path('facture/<int:order_id>/', views.facture_view, name='facture'),
+    path('facture_demo/<int:order_id>/', views.facture_demo, name='facture_demo'),
     path('ai_settings/', views.ai_settings_view, name='ai_settings'),
 
 

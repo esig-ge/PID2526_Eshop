@@ -1,13 +1,17 @@
 // ai_search.js
 
-document.getElementById("aiQueryButton").addEventListener("click", async function () {
+// 1️⃣ AI search function
+async function searchAI() {
     const query = document.getElementById("searchInput-ai").value;
     const resultsContainer = document.getElementById("ai_choice");
 
-    // clean previous results
+    // clear previous results
     resultsContainer.innerHTML = "";
 
-        // show loading spinner
+    // if the query is too short, do nothing
+    if (query.length < 2) return;
+
+    // show loading spinner
     const loader = document.createElement("div");
     loader.style.textAlign = "center";
     loader.style.padding = "12px";
@@ -37,102 +41,97 @@ document.getElementById("aiQueryButton").addEventListener("click", async functio
         document.head.appendChild(style);
     }
 
-
-    // if the request is too short, dont send do anything
-    if (query.length < 2) {
-        return;
-    }
-
     try {
         const response = await fetch(`/ai_search?q=${encodeURIComponent(query)}`);
 
         if (!response.ok) {
-            throw new Error(`Erreur HTTP ${response.status}`);
+            throw new Error(`HTTP Error ${response.status}`);
         }
 
         const data = await response.json();
         // remove loader
         loader.remove();
 
-        // if not in the expected format, show an error message
+        // check if results are in expected format
         if (!data.results || !Array.isArray(data.results) || data.results.length === 0 || data.results[0].name === "Erreur de parsing") {
-            resultsContainer.innerHTML = '<span style="color: #e74c3c;">Aucune suggestion pour le moment...</span> <p> Essayez de reformuler votre question ou d\'utiliser des mots-clés différents.</p>';
+            resultsContainer.innerHTML = `<span style="color: #e74c3c;"">Pas de suggestion pour le moment...</span><p>Essayer d'utiliser d'autre mot clé.</p>`;
             return;
         }
 
-        // simplifie data results
+        // simplify data results
         const suggestion = data.results;
 
         // ------------------------------------------------------
-        // Treate the json to show cleanly the name and the price of the product, and make it a link to the product page
+        // Process the JSON to display product name, price, and link nicely
         // ------------------------------------------------------
+        for (const suggestedProduct of suggestion) {
+            if (suggestedProduct.name) {
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-4";
 
-        for (const suggestedProduct in suggestion) {
+                const card = document.createElement("div");
+                card.className = "card h-100 shadow-sm";
 
-        if (suggestion.name) {
-            const card = document.createElement("div");
-            card.style.padding = "16px";
-            card.style.background = "#ffffff";
-            card.style.borderRadius = "12px";
-            card.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
-            card.style.marginTop = "12px";
-            card.style.maxWidth = "400px";
-            card.style.transition = "transform 0.2s ease";
-            card.style.cursor = "pointer";  // Make the whole card clickable
-            card.addEventListener("mouseover", () => { card.style.transform = "scale(1.02)"; });
-            card.addEventListener("mouseout", () => { card.style.transform = "scale(1)"; });
+                // Image
+                if (suggestedProduct.img_url) {
+                    const img = document.createElement("img");
+                    img.src = suggestedProduct.img_url.trim(); // trim just in case
+                    img.className = "card-img-top";
+                    img.alt = suggestedProduct.name;
+                    card.appendChild(img);
+                }
 
-            // Image (if available)
-            if (suggestion.img_url) {
-                const img = document.createElement("img");
-                img.src = suggestion.img_url;
-                img.alt = suggestion.name;
-                img.style.width = "100%";
-                img.style.height = "auto";
-                img.style.borderRadius = "8px";
-                img.style.marginBottom = "12px";
-                card.appendChild(img);
-            }
+                const cardBody = document.createElement("div");
+                cardBody.className = "card-body d-flex flex-column";
 
-            // Title and Price as link
-            const link = document.createElement("a");
-            link.href = suggestion.link;
-            link.style.textDecoration = "none";
-            link.style.color = "#2c3e50";
-            link.style.display = "block";
-            // doesn't work ? 
-            link.target = "_blank";
-            link.innerHTML = `
-            <h3 style="margin: 0; font-size: 1.2em; font-weight: 600;">${suggestedProduct.name}</h3>
-            <span style="color: #27ae60; font-size: 1.1em; font-weight: 500;">${suggestedProduct.price} CHF</span>
-        `;
-            card.appendChild(link);
+                const title = document.createElement("h5");
+                title.className = "card-title";
+                title.textContent = suggestedProduct.name;
 
-            // Resume (description)
-            if (suggestedProduct.resume) {
-                const p = document.createElement("p");
-                p.style.marginTop = "8px";
-                p.style.color = "#555";
-                p.style.fontSize = "0.9em";
-                p.style.lineHeight = "1.4";
-                p.textContent = suggestedProduct.resume;
-                card.appendChild(p);
-            }
+                const price = document.createElement("p");
+                price.className = "text-success fw-bold";
+                price.textContent = suggestedProduct.price;
 
-            // Make the whole card clickable (redirect to link)
-            card.addEventListener("click", () => { window.location.href = suggestedProduct.link; });
+                const resume = document.createElement("p");
+                resume.className = "card-text small text-muted";
+                resume.textContent = suggestedProduct.resume;
 
-            resultsContainer.appendChild(card);
+                const link = document.createElement("a");
+                link.href = suggestedProduct.link;
+                link.target = "_blank";
+                link.className = "btn btn-primary mt-auto";
+                link.textContent = "View Product";
+
+                cardBody.appendChild(title);
+                cardBody.appendChild(price);
+                cardBody.appendChild(resume);
+                cardBody.appendChild(link);
+
+                card.appendChild(cardBody);
+                col.appendChild(card);
+
+                resultsContainer.appendChild(col);
             }
         }
 
     } catch (err) {
-        console.error("Erreur lors de la recherche IA :", err);
-        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Erreur de connexion à l\'IA...</span>';
+        console.error("Error during AI search:", err);
+        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Error connecting to AI...</span>';
+    }
+}
+
+// 2️⃣ Trigger via button click
+document.getElementById("aiQueryButton").addEventListener("click", searchAI);
+
+// 3️⃣ Trigger via Enter key in input
+document.getElementById("searchInput-ai").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // prevent default form submission
+        searchAI();         // call the same function as the button
     }
 });
 
-// Clear AI search
+// 4️⃣ Clear AI search
 document.getElementById("clear-ai-search").addEventListener("click", function () {
     const input = document.getElementById("searchInput-ai");
     const results = document.getElementById("ai_choice");
