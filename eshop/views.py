@@ -75,9 +75,11 @@ def product_search(request):
         query = request.GET.get("q", "")
 
         if query:
-            resultats = Product.objects.filter(
-                name__icontains=query
-            ).values('id', 'name', 'price')
+            words = query.split()
+            search_filter = Q()
+            for word in words:
+                search_filter &= Q(name__icontains=word) | Q(description__icontains=word)
+            resultats = Product.objects.filter(search_filter).distinct().values('id', 'name', 'price')
         else:
             resultats = Product.objects.none()
 
@@ -431,7 +433,11 @@ def product_list(request):
 
     # 3. Filtrage par mot-clé (Recherche intelligente)
     if query:
-        products = products.filter(name__icontains=query)
+        words = query.split()
+        search_filter = Q()
+        for word in words:
+            search_filter &= Q(name__icontains=word) | Q(description__icontains=word)
+        products = products.filter(search_filter).distinct()
     # 4. Filtrage par catégorie
     if category:
         products = products.filter(
