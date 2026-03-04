@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .forms import RegisterForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 # Create your views here.
 
@@ -523,3 +523,16 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'eshop/register.html', {'form': form})
+    
+@login_required
+def profile(request):
+    return render(request, 'eshop/profile.html')
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        return redirect('product_list')
+    return render(request, 'eshop/delete_account.html')

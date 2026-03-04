@@ -1,0 +1,56 @@
+{% extends 'eshop/header.html' %}
+
+{% block content %}
+<div class="container my-5 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white py-4 rounded-top-4 position-relative overflow-hidden">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-semibold">{{ user.username }}</h3>
+                            <p class="mb-0 opacity-75">Mon Profil</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <!-- <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">Informations du compte</h5> -->
+                    
+                    <div class="mb-3 d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                        <span class="fw-semibold text-muted">Nom d'utilisateur</span>
+                        <span class="fw-semibold">{{ user.username }}</span>
+                    </div>
+                    
+                    <div class="mb-5 d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                        <span class="fw-semibold text-muted">Membre depuis</span>
+                        <span class="fw-semibold">{{ user.date_joined|date:"d F Y"|default:"Inconnu" }}</span>
+                    </div>
+
+                    <!-- <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">Actions liées au compte</h5> -->
+                    
+                    <div class="d-grid gap-3">
+                        <!-- Formulaire de déconnexion -->
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill fw-semibold">
+                                <!-- <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>  -->
+                                Se déconnecter
+                            </button>
+                        </form>
+                        
+                        <!-- Lien vers la suppression de compte -->
+                        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger rounded-pill fw-semibold w-100">
+                            <!-- <i class="fa-solid fa-trash-can me-2"></i>  -->
+                            Supprimer mon compte
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

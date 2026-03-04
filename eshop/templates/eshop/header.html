@@ -32,14 +32,11 @@
         </a>
         <a href="{% url 'comparer' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Comparateur</a>
         {% if user.is_authenticated %}
-            <span class="text-white ms-3 me-2">Bonjour, {{ user.username }}</span>
-            <form action="{% url 'logout' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se déconnecter</button>
-            </form>
+            <a href="{% url 'profile' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">
+                <i class="fa-solid fa-user me-1"></i> Mon Compte
+            </a>
         {% else %}
             <a href="{% url 'login' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">Se connecter</a>
-            <a href="{% url 'register' %}" class="text-white text-decoration-none btn btn-outline-light position-relative ms-2">S'inscrire</a>
         {% endif %}
     </div>
 
