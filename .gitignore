@@ -1,8 +1,14 @@
 # Python
 *.pyc
 *~
+__pycache__
+
 __pycache__/
+*.py[cod]
+*.pyo
 *.pyc
+*$py.class
+.pytest_cache/
 
 # Env
 .env
@@ -31,3 +37,8 @@ $RECYCLE.BIN/
 .vscode/
 .history/
 *.code-workspace
+
+# Apis & other
+(?i)apikeys.py
+
+/media

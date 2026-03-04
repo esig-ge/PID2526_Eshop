@@ -1,0 +1,56 @@
+{% extends 'eshop/header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <h2 class="text-center mb-4 fw-bold text-primary">Ajouter un produit</h2>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-3">
+                            <label class="fw-bold mb-1 text-muted" for="{{ form.name.id_for_label }}">Nom du produit</label>
+                            {{ form.name }}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="fw-bold mb-1 text-muted" for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-sm-6 form-group mb-3 mb-sm-0">
+                                <label class="fw-bold mb-1 text-muted" for="{{ form.price.id_for_label }}">Prix (CHF)</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-sm-6 d-flex align-items-center mt-sm-4">
+                                <div class="form-check form-switch">
+                                     {{ form.availability }}
+                                    <label class="form-check-label fw-bold ms-1" for="{{ form.availability.id_for_label }}">Disponible en stock</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label class="fw-bold mb-1 text-muted" for="{{ form.image.id_for_label }}">Image du produit</label>
+                            {{ form.image }}
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Enregistrer le produit</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

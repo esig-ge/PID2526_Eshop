@@ -1,6 +1,19 @@
 from django import forms
 import re
-from .models import Review
+from .models import Review, AiSettings, Product
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'availability', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du produit'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Description du produit'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix'}),
+            'availability': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
 
 class PostReview(forms.ModelForm):
     class Meta:
@@ -20,3 +33,13 @@ class PostReview(forms.ModelForm):
             raise forms.ValidationError("Le texte de l'avis ne doit pas contenir de numéro de téléphone.")
 
         return review_text
+
+
+class AiSettingsForm(forms.ModelForm):
+    class Meta:
+        model = AiSettings         # <-- ici on met le modèle exact
+        fields = ['aiModel', 'prompt']  # <-- noms exacts des champs
+        widgets = {
+            'aiModel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du modèle AI'}),
+            'prompt': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Prompt par défaut'}),
+        }

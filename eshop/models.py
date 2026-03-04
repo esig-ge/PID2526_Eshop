@@ -7,6 +7,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.FloatField()
     availability = models.BooleanField()
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
 
     #Def Publish obligatoire pour l'espace admin django !!!!!!
     def publish(self):
@@ -52,3 +53,38 @@ class CartItem(models.Model):
 
     def sub_total(self):
         return self.product.price * self.quantity
+    
+
+class AiSettings(models.Model):
+    aiModel = models.CharField(max_length=100)
+    prompt = models.CharField(max_length=256)
+
+
+    def sub_total(self):
+        return self.aiModel + self.prompt
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.FloatField(default=0) # On garde FloatField car ton Product.price est en Float
+
+    def __str__(self):
+        return f"Commande {self.id} - {self.user.username}"
+
+    # Cette méthode permet à ton template d'afficher le total via {{ order.get_total_cost }}
+    def get_total_cost(self):
+        return sum(item.get_cost() for item in self.items.all())
+
+class OrderItem(models.Model):
+    # Le related_name='items' est OBLIGATOIRE pour faire order.items.all() dans ta vue/HTML
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    price = models.FloatField() # On stocke le prix au moment de l'achat
+    quantity = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.product.name} ({self.quantity})"
+
+    # Cette méthode permet d'afficher le total par ligne via {{ item.get_cost }}
+    def get_cost(self):
+        return self.price * self.quantity

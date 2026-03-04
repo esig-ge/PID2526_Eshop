@@ -1,51 +1,140 @@
+// ai_search.js
 
-// Generé par IA, modifier extensivement pour repondre a mes besoins
-document.getElementById("searchInput-ai").addEventListener("input",  async function () {
+// 1️⃣ AI search function
+async function searchAI() {
+    const query = document.getElementById("searchInput-ai").value;
+    const resultsContainer = document.getElementById("ai_choice");
 
-
-    const query = this.value.trim();
-    const resultsContainer = document.getElementById("results");
-
+    // clear previous results
     resultsContainer.innerHTML = "";
 
-    if (query.length < 1) {
-        const li = document.createElement("li");
-        resultsContainer.clear
-        return;
+    // if the query is too short, do nothing
+    if (query.length < 2) return;
+
+    // show loading spinner
+    const loader = document.createElement("div");
+    loader.style.textAlign = "center";
+    loader.style.padding = "12px";
+    loader.innerHTML = `
+        <div style="
+            width:24px;
+            height:24px;
+            border:3px solid #ddd;
+            border-top:3px solid #3498db;
+            border-radius:50%;
+            animation: spin 0.8s linear infinite;
+            margin:auto;
+        "></div>
+    `;
+    resultsContainer.appendChild(loader);
+
+    // inject animation once
+    if (!document.getElementById("aiLoaderStyle")) {
+        const style = document.createElement("style");
+        style.id = "aiLoaderStyle";
+        style.innerHTML = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     try {
-        const response =  await fetch(`/ai_search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error("Erreur serveur");
+        const response = await fetch(`/ai_search?q=${encodeURIComponent(query)}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error ${response.status}`);
+        }
 
         const data = await response.json();
+        // remove loader
+        loader.remove();
 
-        if (data.results.length === 0) {
-            const li = document.createElement("li");
-            li.textContent = "Aucun produit trouvé";
-            li.style.color = "red";
-            resultsContainer.appendChild(li);
+        // check if results are in expected format
+        if (!data.results || !Array.isArray(data.results) || data.results.length === 0 || data.results[0].name === "Erreur de parsing") {
+            resultsContainer.innerHTML = `<span style="color: #e74c3c;"">Pas de suggestion pour le moment...</span><p>Essayer d'utiliser d'autre mot clé.</p>`;
             return;
         }
 
-        data.results.forEach(item => {
-            const li = document.createElement("li");
-            const a = document.createElement("a");
+        // simplify data results
+        const suggestion = data.results;
 
-            a.href = `/get/${item.id}/`;
-            a.textContent = `${item.name} — ${item.price} €`;
+        // ------------------------------------------------------
+        // Process the JSON to display product name, price, and link nicely
+        // ------------------------------------------------------
+        for (const suggestedProduct of suggestion) {
+            if (suggestedProduct.name) {
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-4";
 
+                const card = document.createElement("div");
+                card.className = "card h-100 shadow-sm";
 
-            li.appendChild(a);
-            resultsContainer.appendChild(li);
-        });
+                // Image
+                if (suggestedProduct.img_url) {
+                    const img = document.createElement("img");
+                    img.src = suggestedProduct.img_url.trim(); // trim just in case
+                    img.className = "card-img-top";
+                    img.alt = suggestedProduct.name;
+                    card.appendChild(img);
+                }
+
+                const cardBody = document.createElement("div");
+                cardBody.className = "card-body d-flex flex-column";
+
+                const title = document.createElement("h5");
+                title.className = "card-title";
+                title.textContent = suggestedProduct.name;
+
+                const price = document.createElement("p");
+                price.className = "text-success fw-bold";
+                price.textContent = suggestedProduct.price;
+
+                const resume = document.createElement("p");
+                resume.className = "card-text small text-muted";
+                resume.textContent = suggestedProduct.resume;
+
+                const link = document.createElement("a");
+                link.href = suggestedProduct.link;
+                link.target = "_blank";
+                link.className = "btn btn-primary mt-auto";
+                link.textContent = "View Product";
+
+                cardBody.appendChild(title);
+                cardBody.appendChild(price);
+                cardBody.appendChild(resume);
+                cardBody.appendChild(link);
+
+                card.appendChild(cardBody);
+                col.appendChild(card);
+
+                resultsContainer.appendChild(col);
+            }
+        }
 
     } catch (err) {
-        console.error(err);
-        const li = document.createElement("li");
-        li.textContent = "Erreur de recherche";
-        li.style.color = "red";
-        resultsContainer.appendChild(li);
+        console.error("Error during AI search:", err);
+        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Error connecting to AI...</span>';
+    }
+}
+
+// 2️⃣ Trigger via button click
+document.getElementById("aiQueryButton").addEventListener("click", searchAI);
+
+// 3️⃣ Trigger via Enter key in input
+document.getElementById("searchInput-ai").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // prevent default form submission
+        searchAI();         // call the same function as the button
     }
 });
 
+// 4️⃣ Clear AI search
+document.getElementById("clear-ai-search").addEventListener("click", function () {
+    const input = document.getElementById("searchInput-ai");
+    const results = document.getElementById("ai_choice");
+    input.value = "";
+    results.innerHTML = "";
+});

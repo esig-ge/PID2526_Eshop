@@ -1,7 +1,4 @@
-
-// Generé par IA, modifier extensivement pour repondre a mes besoins
-document.getElementById("searchInput").addEventListener("input",  async function () {
-
+document.getElementById("searchInput").addEventListener("input", async function () {
 
     const query = this.value.trim();
     const resultsContainer = document.getElementById("results");
@@ -9,43 +6,60 @@ document.getElementById("searchInput").addEventListener("input",  async function
     resultsContainer.innerHTML = "";
 
     if (query.length < 1) {
-        const li = document.createElement("li");
-        resultsContainer.clear
-        return;
+        return;   // on sort directement, pas besoin de créer un <li> vide
     }
 
     try {
-        const response =  await fetch(`/ajax_search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`/ajax_search?q=${encodeURIComponent(query)}`);
         if (!response.ok) throw new Error("Erreur serveur");
 
         const data = await response.json();
 
         if (data.results.length === 0) {
-            const li = document.createElement("li");
-            li.textContent = "Aucun produit trouvé";
-            li.style.color = "red";
-            resultsContainer.appendChild(li);
+            const div = document.createElement("div");
+            div.className = "alert alert-warning mt-2";
+            div.textContent = "Aucun produit trouvé";
+            resultsContainer.appendChild(div);
             return;
         }
 
+        // Use Bootstrap list-group for pretty display
+        const listGroup = document.createElement("div");
+        listGroup.className = "list-group mt-2";
+
         data.results.forEach(item => {
-            const li = document.createElement("li");
             const a = document.createElement("a");
-
             a.href = `/get/${item.id}/`;
-            a.textContent = `${item.name} — ${item.price} €`;
+            a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+            a.style.textDecoration = "none";
 
+            // Protection contre undefined
+            const name = item.name || "Produit sans nom";
+            const price = item.price !== undefined ? item.price : "Prix indisponible";
 
-            li.appendChild(a);
-            resultsContainer.appendChild(li);
+            a.innerHTML = `
+                <span class="fw-bold">${name}</span>
+                <span class="badge bg-success rounded-pill">${price} €</span>
+            `;
+
+            listGroup.appendChild(a);
         });
+
+        resultsContainer.appendChild(listGroup);
 
     } catch (err) {
         console.error(err);
-        const li = document.createElement("li");
-        li.textContent = "Erreur de recherche";
-        li.style.color = "red";
-        resultsContainer.appendChild(li);
+        const div = document.createElement("div");
+        div.className = "alert alert-danger mt-2";
+        div.textContent = "Erreur de recherche";
+        resultsContainer.appendChild(div);
     }
 });
 
+// Clear normal search
+document.getElementById("clearNormalSearch").addEventListener("click", function () {
+    const input = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+    input.value = "";
+    results.innerHTML = "";
+});

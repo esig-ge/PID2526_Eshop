@@ -1,0 +1,154 @@
+
+{% extends "eshop/header.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Facture #{{ order.id }}</h2>
+            <span>Date : {{ order.created_at|date:"d/m/Y" }}</span>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <h6 class="mb-3">De :</h6>
+                    <div><strong>Boutique PID2526</strong></div>
+                    <div>Genève, Suisse</div>
+                    <div>Email: contact@eshop.ch</div>
+                </div>
+                </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th class="text-center">Quantité</th>
+                        <th class="text-end">Prix Unitaire</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">{{ item.price|floatformat:2 }} CHF</td>
+                        <td class="text-end">{{ item.get_cost }} CHF</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">Aucun article dans cette facture.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-lg-4 col-sm-5 ms-auto">
+                    <table class="table table-clear">
+                        <tbody>
+                            <tr>
+                                <td class="left"><strong>Total à payer</strong></td>
+                                <td class="text-end"><strong>{{ order.get_total_cost }} CHF</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-center no-print">
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fa fa-print"></i> Imprimer cette page
+            </button>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Retour à la boutique</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Style pour une impression propre sans les éléments inutiles */
+    @media print {
+        .no-print, .btn, .card-footer, header, footer { display: none !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .container { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+        body { background-color: white !important; }
+    }
+</style>
+{% endblock %}
+
+
+{% comment %}                           affichage sans bdd
+{% extends "eshop/header.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Facture #12345</h2>
+            <span>Date : 03/03/2026</span>
+        </div>
+        
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <h6 class="mb-3">De :</h6>
+                    <div><strong>Boutique PID2526</strong></div>
+                    <div>Genève, Suisse</div>
+                    <div>Email: contact@eshop.ch</div>
+                </div>
+            </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th class="text-center">Quantité</th>
+                        <th class="text-end">Prix Unitaire</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Produit de démonstration</td>
+                        <td class="text-center">1</td>
+                        <td class="text-end">50.00 CHF</td>
+                        <td class="text-end">50.00 CHF</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-lg-4 col-sm-5 ms-auto">
+                    <table class="table table-clear">
+                        <tbody>
+                            <tr>
+                                <td class="left"><strong>Total à payer</strong></td>
+                                <td class="text-end"><strong>50.00 CHF</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-center no-print">
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fa fa-print"></i> Imprimer cette page
+            </button>
+            <a href="{% url 'cart_detail' %}" class="btn btn-primary">Retour au panier</a>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Retour à la boutique</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Cache les boutons et les ombres lors de l'impression réelle */
+    @media print {
+        .no-print, .btn, .card-footer { display: none !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .container { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+    }
+</style>
+{% endblock %}{% endcomment %}
