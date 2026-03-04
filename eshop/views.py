@@ -332,6 +332,7 @@ def checkout_create_session(request):
     cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
     if not cart:
         return redirect("cart_detail")
+    order = Order.objects.create(user=request.user)
 
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     if not cart_items.exists():
@@ -343,7 +344,6 @@ def checkout_create_session(request):
         for item in cart_items:
             # Optionnel : Si tu as un modèle OrderItem, tu peux enregistrer les produits ici :
             # OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-
             line_items.append({
                 "price_data": {
                     "currency": "chf",
