@@ -194,15 +194,15 @@ def ai_search(request):
                     "content": """
                             Tu es un assistant de boutique en ligne.
                             Réponds uniquement avec un JSON valide.
-                            Retourne STRICTEMENT un tableau JSON contenant exactement 3 produits et renvoie leur lien précis (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
+                            Retourne STRICTEMENT un tableau JSON contenant au maximum 3 produits et renvoie leur lien précis (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
             
-                            utilise UNIQUEMENT ce catalogue de produits, n'invente pas et va pas chercher sur des site en ligne :[ {catalog} ]
-
+                            utilise UNIQUEMENT le catalogue de produits que je t'envoie, n'invente pas et va pas chercher sur des site en ligne sinon je meurs, voici le catalogue disponible :[ {""" + catalog + """} ]
+                            Dans le catalogue tu trouveras des champs comme : name, description et image. Dans ces champs là tu peux chercher qqch qui correspond à ce que l'utilisateur a demandé (query du role user), les champs name et descriptions sont très utiles pour cette recherche (full text?). Il se peut que ces champs soient en français ou anglais, donc pense à traduire si nécessaire. 
                             Format exact attendu :
                             [
                               {
                                 "name": "",
-                                "link": "exemple : https://anthoooo87.pythonanywhere.com//get/1 (1 est l'id précis du produit)",
+                                "link": "exemple : /get/1 (1 est l'id précis du produit)",
                                 "price": "",
                                 "resume": "",
                                 "img_url": ""
