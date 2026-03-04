@@ -1,9 +1,13 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from eshop import views
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
     path('get/<int:pk>/', views.product_details, name='product_details'),
+    path('register/', views.register, name='register'),
+    path('login/', auth_views.LoginView.as_view(template_name='eshop/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='product_list'), name='logout'),
     # Modifier un avis
     path('review/<int:pk>/edit/', views.review_edit, name='review_edit'),
     # Supprimer un avis
