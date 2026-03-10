@@ -68,6 +68,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.FloatField(default=0) # On garde FloatField car ton Product.price est en Float
 
+
     def __str__(self):
         return f"Commande {self.id} - {self.user.username}"
 

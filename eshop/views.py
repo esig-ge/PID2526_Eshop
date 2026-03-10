@@ -358,7 +358,6 @@ def comparer_clear(request):
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-@require_POST
 def checkout_create_session(request):
     if not request.user.is_authenticated:
         return redirect("login")
@@ -419,7 +418,6 @@ def checkout_create_session(request):
 
 @require_http_methods(["GET", "POST"])
 def checkout_info(request):
-    # Pré-remplissage depuis la session si déjà saisi
     data = request.session.get("checkout_info", {})
 
     if request.method == "POST":
@@ -433,18 +431,28 @@ def checkout_info(request):
             "country": request.POST.get("country", "CH").strip().upper(),
         }
 
-        # Validation simple (tu peux durcir après)
-        if not all([payload["first_name"], payload["last_name"], payload["address_line1"], payload["postal_code"], payload["city"], payload["country"]]):
-            return render(request, "eshop/checkout_info.html", {"error": "Tous les champs obligatoires doivent être remplis.", "data": payload})
+        if not all([
+            payload["first_name"],
+            payload["last_name"],
+            payload["address_line1"],
+            payload["postal_code"],
+            payload["city"],
+            payload["country"],
+        ]):
+            return render(request, "eshop/checkout_info.html", {
+                "error": "Tous les champs obligatoires doivent être remplis.",
+                "data": payload
+            })
 
-        # NPA suisse: 4 chiffres (optionnel, mais utile)
         if payload["country"] == "CH" and not re.fullmatch(r"\d{4}", payload["postal_code"]):
-            return render(request, "eshop/checkout_info.html", {"error": "Le NPA Suisse doit contenir 4 chiffres.", "data": payload})
+            return render(request, "eshop/checkout_info.html", {
+                "error": "Le NPA suisse doit contenir 4 chiffres.",
+                "data": payload
+            })
 
         request.session["checkout_info"] = payload
         request.session.modified = True
 
-        # On continue vers Stripe
         return redirect("checkout")
 
     return render(request, "eshop/checkout_info.html", {"data": data})
@@ -496,7 +504,7 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
-# --------------------------------- modif meg------------------------
+
 def product_list(request):
     products = Product.objects.all()
     query = request.GET.get('q')
