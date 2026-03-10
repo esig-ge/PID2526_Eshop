@@ -117,7 +117,7 @@ async function searchAI() {
                 resume.textContent = suggestedProduct.resume;
 
                 const link = document.createElement("a");
-                link.href = suggestedProduct.link;
+                link.href = "/get/" + suggestedProduct.link;
                 link.target = "_blank";
                 link.className = "btn btn-primary mt-auto";
                 link.textContent = "Voir le produit";
@@ -140,7 +140,7 @@ async function searchAI() {
 
     } catch (err) {
         console.error("Error during AI search:", err);
-        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Error connecting to AI...</span>';
+        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Erreur de connection a l´IA...</span>';
     }
 }
 
@@ -167,22 +167,39 @@ document.getElementById("clear-ai-search").addEventListener("click", function ()
 function createAddToCartForm(productId) {
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `/cart/add/${productId}/`; // Ton URL Django
+    form.action = `/cart/add/${productId}/`;
     form.className = "m-0";
 
     // CSRF token
     const csrfInput = document.createElement("input");
     csrfInput.type = "hidden";
     csrfInput.name = "csrfmiddlewaretoken";
-    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value; // récupère le token existant
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
     form.appendChild(csrfInput);
 
-    // Bouton
     const button = document.createElement("button");
     button.type = "submit";
-    button.className = "btn btn-primary btn-sm";
+    button.className = "btn btn-primary mt-2";
     button.innerHTML = '<i class="fa fa-cart-plus"></i> Panier';
     form.appendChild(button);
+
+    // 🔥 Empêcher la redirection
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfInput.value
+            }
+        });
+
+        if (response.ok) {
+            button.innerHTML = "✔ Ajouté";
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-secondary");
+        }
+    });
 
     return form;
 }
