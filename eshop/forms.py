@@ -39,11 +39,12 @@ class PostReview(forms.ModelForm):
 
 class AiSettingsForm(forms.ModelForm):
     class Meta:
-        model = AiSettings         # <-- ici on met le modèle exact
-        fields = ['aiModel', 'prompt']  # <-- noms exacts des champs
+        model = AiSettings
+        fields = ['aiModel', 'temperature', 'num_predict'] 
         widgets = {
             'aiModel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du modèle AI'}),
-            'prompt': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Prompt par défaut'}),
+            'temperature': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'temperature par défaut (0.7)'}),
+            'num_predict': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'num_predict par défaut (500)'}),
         }
 
 

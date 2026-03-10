@@ -179,16 +179,13 @@ def ai_search(request):
         )
 
         # Suppose get_all_products() retourne Product.objects.all()
-        
         products_list = list(get_all_products().values())
-
         catalog = json.dumps(products_list)
-
-
+        ai_data = get_ai_settings()
 
         # Ollama API call
         response = client.chat(
-            model="gemma3:27b",  # ← this one will need to be a variable taken from the database so the web "admin" can change it
+            model = ai_data["model"],
 
             messages=[
                 {   # Ai instructions -> system role are for those
@@ -258,8 +255,8 @@ def ai_search(request):
                 }
             ],
             options={
-                "temperature": 0.7, # Temperature controls randomness/creativity in the model’s output
-                "num_predict": 500  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
+                "temperature": ai_data["temparature"], # Temperature controls randomness/creativity in the model’s output
+                "num_predict": ai_data["num_predict"]  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
 
@@ -579,17 +576,27 @@ def cart_detail(request):
 
 
 
-@login_required
-def ai_settings_view(request):
+def get_ai_settings(request):
     settings = AiSettings.objects.first()
     if not settings:
         return JsonResponse({"error": "AISettings not found"}, status=404)
 
     data = {
         "model": settings.aiModel,
-        "prompt": settings.prompt,
+        "temperature": settings.temperature,
+        "num_predict": settings.num_predict,
         }
     return JsonResponse(data)
+
+@login_required
+def ai_settings(request):
+    if request.method == "POST":
+        form = AiSettings(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = AiSettings()
+    return render(request, "eshop/ai_settings.html", {'form': form})
 
 def register(request):
     if request.method == 'POST':
