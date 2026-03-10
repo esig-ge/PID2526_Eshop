@@ -36,9 +36,11 @@
                 <div style="margin-bottom: 40px; border-top: 2px solid #eee; padding-top: 20px;">
                     <h4 style="margin-bottom: 10px;">Facturé à :</h4>
                     <p>
-                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
-                        {{ order.address }}<br>
-                        {{ order.postal_code }} {{ order.city }}
+                        Client N° : {{ order.user.id }}
+                        <strong>{{ order.user.first_name }} {{ order.user.last_name }}</strong><br>
+                        {{ order.user.address }}<br>
+                        Email : {{ order.user.email }}<br>
+                        {{ order.user.postal_code }} {{ order.user.city }}
                     </p>
                 </div>
 
