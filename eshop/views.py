@@ -367,20 +367,24 @@ def checkout_create_session(request):
     cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
     if not cart or not cart.cartitem_set.exists():
         return redirect("cart_detail")
+
+    info = request.session.get("checkout_info")
+    if not info:
+        return redirect("checkout_info")
+
     order = Order.objects.create(user=request.user)
+
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     line_items = []
-    # 2. ON BOUCLE POUR REMPLIR LA COMMANDE ET STRIPE
+
     for item in cart_items:
-        # --- CETTE LIGNE EST CRUCIALE ---
-        # Remplace 'OrderItem' par le nom exact de ton modèle qui lie Order et Product
-        # Si tu n'as pas de modèle OrderItem, dis-le moi, mais c'est le standard Django.
-        from eshop.models import OrderItem # Importe-le si nécessaire
+        from eshop.models import OrderItem
+
         OrderItem.objects.create(
             order=order,
             product=item.product,
             quantity=item.quantity,
-            price=item.product.price # On fige le prix au moment de l'achat
+            price=item.product.price
         )
 
         line_items.append({
@@ -395,6 +399,8 @@ def checkout_create_session(request):
     success_url = request.build_absolute_uri(reverse("checkout_success"))
     cancel_url = request.build_absolute_uri(reverse("checkout_cancel"))
 
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
     session = stripe.checkout.Session.create(
         mode="payment",
         payment_method_types=["card"],
@@ -402,13 +408,47 @@ def checkout_create_session(request):
         success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
         cancel_url=cancel_url,
         metadata={
-            "order_id": str(order.id), # On passe l'ID de la commande à Stripe
+            "cart_id": str(cart.id),
             "owner_id": str(request.user.id),
+            "postal_code": info["postal_code"],
+            "city": info["city"],
+            "country": info["country"],
         }
     )
 
     return redirect(session.url, permanent=False)
 
+@require_http_methods(["GET", "POST"])
+def checkout_info(request):
+    # Pré-remplissage depuis la session si déjà saisi
+    data = request.session.get("checkout_info", {})
+
+    if request.method == "POST":
+        payload = {
+            "first_name": request.POST.get("first_name", "").strip(),
+            "last_name": request.POST.get("last_name", "").strip(),
+            "address_line1": request.POST.get("address_line1", "").strip(),
+            "address_line2": request.POST.get("address_line2", "").strip(),
+            "postal_code": request.POST.get("postal_code", "").strip(),
+            "city": request.POST.get("city", "").strip(),
+            "country": request.POST.get("country", "CH").strip().upper(),
+        }
+
+        # Validation simple (tu peux durcir après)
+        if not all([payload["first_name"], payload["last_name"], payload["address_line1"], payload["postal_code"], payload["city"], payload["country"]]):
+            return render(request, "eshop/checkout_info.html", {"error": "Tous les champs obligatoires doivent être remplis.", "data": payload})
+
+        # NPA suisse: 4 chiffres (optionnel, mais utile)
+        if payload["country"] == "CH" and not re.fullmatch(r"\d{4}", payload["postal_code"]):
+            return render(request, "eshop/checkout_info.html", {"error": "Le NPA Suisse doit contenir 4 chiffres.", "data": payload})
+
+        request.session["checkout_info"] = payload
+        request.session.modified = True
+
+        # On continue vers Stripe
+        return redirect("checkout")
+
+    return render(request, "eshop/checkout_info.html", {"data": data})
 
 def checkout_success(request):
     order = None
