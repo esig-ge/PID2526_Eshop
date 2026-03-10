@@ -37,9 +37,9 @@
                     <h4 style="margin-bottom: 10px;">Facturé à :</h4>
                     <p>
                         Client N° : {{ order.user.id }}
+                        Email : {{ order.user.email }}<br>
                         <strong>{{ order.user.first_name }} {{ order.user.last_name }}</strong><br>
                         {{ order.user.address }}<br>
-                        Email : {{ order.user.email }}<br>
                         {{ order.user.postal_code }} {{ order.user.city }}
                     </p>
                 </div>
