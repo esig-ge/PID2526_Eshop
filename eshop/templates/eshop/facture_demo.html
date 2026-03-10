@@ -1,100 +1,112 @@
-
 {% extends "eshop/header.html" %}
 
 {% block content %}
-<div class="container my-5">
+    <div class="container my-5">
 
-    <div class="card shadow no-print">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Ma Commande #{{ order.id }}</h2>
-        </div>
-        <div class="card-body text-center">
-            <p class="lead">Votre facture est prête.</p>
-
-            <button onclick="generatePDF()" class="btn btn-success btn-lg">
-                <i class="fa fa-file-pdf"></i> Télécharger la facture officielle
-            </button>
-
-            <hr>
-            <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Retour à la boutique</a>
-        </div>
-    </div>
-
-    <div id="facture-pro-template" style="display: none;">
-        <div style="padding: 40px; font-family: sans-serif; color: #333;">
-
-            <div style="display: flex; justify-content: space-between; margin-bottom: 50px;">
-                <div>
-                    <h1 style="color: #2c3e50; margin: 0;">FACTURE</h1>
-                    <p>N° #{{ order.id }}<br>Date : {{ order.created_at|date:"d/m/Y" }}</p>
-                </div>
-                <div style="text-align: right;">
-                    <h3 style="margin: 0;">Boutique PID2526</h3>
-                    <p>Genève, Suisse<br>contact@eshop.ch</p>
-                </div>
+        <div class="card shadow no-print">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Ma Commande #{{ order.id }}</h2>
             </div>
+            <div class="card-body text-center">
+                <p class="lead">Votre facture est prête.</p>
 
-            <div style="margin-bottom: 40px; border-top: 2px solid #eee; padding-top: 20px;">
-                <h4 style="margin-bottom: 10px;">Facturé à :</h4>
-                <p>
-                    <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
-                    {{ order.address }}<br>
-                    {{ order.postal_code }} {{ order.city }}
-                </p>
+                <button onclick="generatePDF()" class="btn btn-success btn-lg">
+                    <i class="fa fa-file-pdf"></i> Télécharger la facture officielle
+                </button>
+
+                <hr>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Retour à la boutique</a>
             </div>
+        </div>
 
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
+        <div id="facture-pro-template" style="display: none;">
+            <div style="padding: 40px; font-family: sans-serif; color: #333;">
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 50px;">
+                    <div>
+                        <h1 style="color: #2c3e50; margin: 0;">FACTURE</h1>
+                        <p>N° #{{ order.id }}<br>Date : {{ order.created_at|date:"d/m/Y" }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 style="margin: 0;">Boutique PID2526</h3>
+                        <p>Genève, Suisse<br>contact@eshop.ch</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 40px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <h4 style="margin-bottom: 10px;">Facturé à :</h4>
+                    <p>
+                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                        {{ order.address }}<br>
+                        {{ order.postal_code }} {{ order.city }}
+                    </p>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
                     <tr style="background-color: #f8f9fa; border-bottom: 2px solid #333;">
                         <th style="padding: 10px; text-align: left;">Description</th>
                         <th style="padding: 10px; text-align: center;">Qté</th>
                         <th style="padding: 10px; text-align: right;">Prix</th>
                         <th style="padding: 10px; text-align: right;">Total</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for item in items %}
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px;">{{ item.product.name }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ item.quantity }}</td>
-                        <td style="padding: 10px; text-align: right;">{{ item.price|floatformat:2 }} CHF</td>
-                        <td style="padding: 10px; text-align: right;">{{ item.get_cost|floatformat:2 }} CHF</td>
-                    </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;">{{ item.product.name }}</td>
+                            <td style="padding: 10px; text-align: center;">{{ item.quantity }}</td>
+                            <td style="padding: 10px; text-align: right;">{{ item.price|floatformat:2 }} CHF</td>
+                            <td style="padding: 10px; text-align: right;">{{ item.get_cost|floatformat:2 }} CHF</td>
+                        </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            <div style="margin-top: 30px; text-align: right;">
-                <p style="font-size: 1.4em;"><strong>Total : {{ order.get_total_cost }} CHF</strong></p>
-            </div>
+                <div style="margin-top: 30px; text-align: right;">
+                    <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                        <span>Montant HT :</span>
+                        <span>{{ order.get_total_cost }} CHF</span>
+                    </div>
 
-            <div style="margin-top: 100px; text-align: center; font-size: 0.9em; color: #7f8c8d;">
-                <p>Boutique PID2526 - Merci de votre achat !</p>
+                    <div style="display: flex; justify-content: space-between; padding: 5px 0; color: #666;">
+                        <span>TVA (8%) :</span>
+                        <span>{% widthratio order.get_total_cost 100 8 %} CHF</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #333; font-weight: bold; font-size: 1.2em;">
+                        <span>TOTAL TTC :</span>
+                        <span>{{ order.get_total_cost }} CHF (TVA incluse)</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 100px; text-align: center; font-size: 0.9em; color: #7f8c8d;">
+                    <p>Boutique PID2526 - Merci de votre achat !</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-    function generatePDF() {
-        const element = document.getElementById('facture-pro-template');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function generatePDF() {
+            const element = document.getElementById('facture-pro-template');
 
-        const opt = {
-            margin: 0,
-            filename: 'Facture_{{ order.id }}.pdf',
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 3 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+            const opt = {
+                margin: 0,
+                filename: 'Facture_{{ order.id }}.pdf',
+                image: {type: 'jpeg', quality: 1},
+                html2canvas: {scale: 3},
+                jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+            };
 
-        // On temporise l'affichage juste le temps de la capture
-        element.style.display = 'block';
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = 'none'; // On recache après
-        });
-    }
-</script>
+            // On temporise l'affichage juste le temps de la capture
+            element.style.display = 'block';
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // On recache après
+            });
+        }
+    </script>
 {% endblock %}
 
 
