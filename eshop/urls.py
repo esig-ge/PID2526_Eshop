@@ -25,6 +25,7 @@ urlpatterns = [
     path('comparer/clear/', views.comparer_clear, name='comparer_clear'),
     #path('facture/<int:order_id>/', views.facture_view, name='facture'),
     path("checkout/", views.checkout_create_session, name="checkout"),
+    path("checkout/info/", views.checkout_info, name="checkout_info"),
     path("checkout/success/", views.checkout_success, name="checkout_success"),
     path("checkout/cancel/", views.checkout_cancel, name="checkout_cancel"),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
