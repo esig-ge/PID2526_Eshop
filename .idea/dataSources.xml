@@ -17,7 +17,7 @@
       </libraries>
     </data-source>
     <data-source source="LOCAL" name="db [2]" uuid="0548cae3-c420-495b-bf1a-383ee524676b">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>669a6b40-ecd0-4be6-95c5-5251e13a2d2c</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\yasminath.ossn\PycharmProjects\PID2526_Eshop.bkp\db.sqlite3</jdbc-url>

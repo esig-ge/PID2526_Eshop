@@ -9,8 +9,10 @@ from ollama import Client
 from django.db.models import Q
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 import os
 import stripe
+import re
 from eshop.models import Order
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -192,26 +194,62 @@ def ai_search(request):
                 {   # Ai instructions -> system role are for those
                     "role": "system",
                     "content": """
-                            Tu es un assistant de boutique en ligne.
-                            Réponds uniquement avec un JSON valide.
-                            Retourne STRICTEMENT un tableau JSON contenant au maximum 3 produits et renvoie leur lien précis (dans cette ordre precis : 1 haut de gamme, 1 moyen gamme, 1 bas de gamme et n'ajoute pas la devise du prix).
-            
-                            utilise UNIQUEMENT le catalogue de produits que je t'envoie, n'invente pas et va pas chercher sur des site en ligne sinon je meurs, voici le catalogue disponible :[ {""" + catalog + """} ]
-                            Dans le catalogue tu trouveras des champs comme : name, description et image. Dans ces champs là tu peux chercher qqch qui correspond à ce que l'utilisateur a demandé (query du role user), les champs name et descriptions sont très utiles pour cette recherche (full text?). Il se peut que ces champs soient en français ou anglais, donc pense à traduire si nécessaire. 
-                            Format exact attendu :
+                            Tu es un moteur de recherche STRICT pour une boutique e-commerce.
+
+                            MISSION :
+                            Analyser la requête utilisateur (query) et retourner des produits UNIQUEMENT si la requête exprime clairement une intention d’achat ou de recherche d’un produit technologique précis.
+
+                            RÈGLE ABSOLUE PRIORITAIRE :
+                            Si la requête :
+                            - est une salutation (ex: "salut", "bonjour")
+                            - est une phrase vague (ex: "ça va ?", "tu fais quoi ?", "je veux un truc")
+                            - n’exprime PAS clairement une recherche ou intention d’achat d’un produit tech
+                            - ne correspond à AUCUN produit du catalogue
+                            ALORS retourne STRICTEMENT : []
+
+                            IMPORTANT :
+                            - Ne JAMAIS inventer de produit.
+                            - Ne JAMAIS chercher hors du catalogue fourni.
+                            - Utiliser UNIQUEMENT les produits présents dans ce catalogue :
+                            [ {""" + catalog + """} ]
+
+                            ANALYSE :
+                            1. Vérifier qu’il y a une intention d’achat explicite (ex: "je veux", "je cherche", "montre apple", "pc gamer 16go ram").
+                            2. Identifier précisément les mots-clés importants (marque, type, caractéristique).
+                            3. Filtrer STRICTEMENT les produits correspondants dans le catalogue (via name et description).
+                            4. Si un critère demandé n’est pas respecté → exclure le produit.
+                            Exemple : "QUE une montre Apple" → exclure toutes les autres marques.
+
+                            RÈGLES DE TRI :
+                            - Retourner MAXIMUM 3 produits.
+                            - EXACTEMENT dans cet ordre si disponibles :
+                            1. 1 produit haut de gamme
+                            2. 1 produit moyen de gamme
+                            3. 1 produit bas de gamme
+                            - Si une catégorie n’existe pas → ne pas la remplacer.
+                            - Si aucun produit valide → retourner [].
+
+                            FORMAT DE SORTIE (OBLIGATOIRE) :
+                            - Répondre UNIQUEMENT avec un JSON valide.
+                            - STRICTEMENT un tableau JSON.
+                            - Aucun texte avant.
+                            - Aucun texte après.
+                            - Aucune explication.
+                            - Pas de markdown.
+
+                            FORMAT EXACT :
                             [
-                              {
+                            {
                                 "name": "",
-                                "link": "exemple : /get/1 (1 est l'id précis du produit)",
+                                "link": "ID_PRECIS",
                                 "price": "",
                                 "resume": "",
                                 "img_url": ""
-                              }
+                            }
                             ]
-                            Aucun texte avant.
-                            Aucun texte après.
-                            Aucune explication.
-                            Pas de markdown.
+
+                            RÈGLE FINALE :
+                            Si doute → retourner [].
                             """
                 },
                 {   # Actuel Query -> user role is for actual queries
