@@ -421,7 +421,7 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
-# --------------------------------- modif meg------------------------
+
 def product_list(request):
     products = Product.objects.all()
     query = request.GET.get('q')
