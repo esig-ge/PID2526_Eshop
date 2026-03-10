@@ -3,24 +3,31 @@
 {% block content %}
     <div class="container my-5">
 
-        <div class="card shadow no-print">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div class="card shadow no-print mb-4">
+            <div class="card-header bg-dark text-white">
                 <h2 class="mb-0">Ma Commande #{{ order.id }}</h2>
             </div>
             <div class="card-body text-center">
-                <p class="lead">Votre facture est prête.</p>
+                <p class="lead">Votre facture est prête. Que souhaitez-vous faire ?</p>
 
-                <button onclick="generatePDF()" class="btn btn-success btn-lg">
-                    <i class="fa fa-file-pdf"></i> Télécharger la facture officielle
-                </button>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'product_list' %}" class="btn btn-outline-primary">
+                        <i class="fa fa-arrow-left"></i> Retour à la boutique
+                    </a>
 
-                <hr>
-                <a href="{% url 'product_list' %}" class="btn btn-outline-primary">Retour à la boutique</a>
+                    <button onclick="togglePreview()" class="btn btn-info text-white" id="btn-preview">
+                        <i class="fa fa-eye"></i> Voir la facture
+                    </button>
+
+                    <button onclick="generatePDF()" class="btn btn-success">
+                        <i class="fa fa-file-pdf"></i> Télécharger en PDF
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div id="facture-pro-template" style="display: none;">
-            <div style="padding: 40px; font-family: sans-serif; color: #333;">
+        <div id="facture-pro-template" style="display: none; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <div style="padding: 40px; font-family: sans-serif; color: #333; max-width: 800px; margin: auto;">
 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 50px;">
                     <div>
@@ -36,9 +43,8 @@
                 <div style="margin-bottom: 40px; border-top: 2px solid #eee; padding-top: 20px;">
                     <h4 style="margin-bottom: 10px;">Facturé à :</h4>
                     <p>
-                        Client N° : {{ order.user.id }}
-                        Email : {{ order.user.email }}<br>
-                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                        <strong>Client N° :</strong> {{ order.user.id }} | <strong>Email :</strong> {{ order.user.email }}<br>
+                        <span style="font-size: 1.2em; font-weight: bold;">{{ order.first_name }} {{ order.last_name }}</span><br>
                         {{ order.address }}<br>
                         {{ order.postal_code }} {{ order.city }}
                     </p>
@@ -65,7 +71,7 @@
                     </tbody>
                 </table>
 
-                <div style="margin-top: 30px; text-align: right;">
+                <div style="margin-top: 30px; text-align: right; width: 300px; margin-left: auto;">
                     <div style="display: flex; justify-content: space-between; padding: 5px 0;">
                         <span>Montant HT :</span>
                         <span>{% widthratio order.get_total_cost 108 100 %} CHF</span>
@@ -76,14 +82,14 @@
                         <span>{% widthratio order.get_total_cost 100 8 %} CHF</span>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #333; font-weight: bold; font-size: 1.2em;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #333; font-weight: bold; font-size: 1.2em; margin-top: 5px;">
                         <span>TOTAL TTC :</span>
-                        <span>{{ order.get_total_cost }} CHF (TVA incluse)</span>
+                        <span>{{ order.get_total_cost }} CHF</span>
                     </div>
                 </div>
 
-                <div style="margin-top: 100px; text-align: center; font-size: 0.9em; color: #7f8c8d;">
-                    <p>Boutique PID2526 - Merci de votre achat !</p>
+                <div style="margin-top: 80px; text-align: center; font-size: 0.9em; color: #7f8c8d;">
+                    <p>Boutique PID2526 - Merci de votre confiance !</p>
                 </div>
             </div>
         </div>
@@ -91,26 +97,56 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
+        // Fonction pour afficher/cacher l'aperçu
+        function togglePreview() {
+            const preview = document.getElementById('facture-pro-template');
+            const btn = document.getElementById('btn-preview');
+
+            if (preview.style.display === 'none') {
+                preview.style.display = 'block';
+                btn.innerHTML = '<i class="fa fa-eye-slash"></i> Masquer l\'aperçu';
+                btn.className = 'btn btn-secondary';
+                // Scroll automatique vers l'aperçu
+                preview.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                preview.style.display = 'none';
+                btn.innerHTML = '<i class="fa fa-eye"></i> Voir la facture';
+                btn.className = 'btn btn-info text-white';
+            }
+        }
+
+        // Fonction pour générer le PDF
         function generatePDF() {
             const element = document.getElementById('facture-pro-template');
 
+            // On s'assure qu'il est visible pour la capture, même s'il est masqué à l'écran
+            const originalDisplay = element.style.display;
+            element.style.display = 'block';
+
             const opt = {
-                margin: 0,
+                margin: 5,
                 filename: 'Facture_{{ order.id }}.pdf',
                 image: {type: 'jpeg', quality: 1},
-                html2canvas: {scale: 3},
+                html2canvas: {scale: 3, useCORS: true},
                 jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
             };
 
-            // On temporise l'affichage juste le temps de la capture
-            element.style.display = 'block';
             html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none'; // On recache après
+                element.style.display = originalDisplay; // On remet l'état précédent (visible ou masqué)
             });
         }
     </script>
-{% endblock %}
 
+    <style>
+        /* Espacement entre les boutons sur mobile */
+        .gap-3 { gap: 1rem !important; }
+
+        @media (max-width: 768px) {
+            .d-flex { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+{% endblock %}
 
 
 
