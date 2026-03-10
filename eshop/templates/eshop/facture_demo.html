@@ -15,7 +15,7 @@
                         <i class="fa fa-arrow-left"></i> Retour à la boutique
                     </a>
 
-                    <button onclick="togglePreview()" class="btn btn-info text-white" id="btn-preview">
+                    <button onclick="togglePreview()" class="btn btn-primary text-white" id="btn-preview">
                         <i class="fa fa-eye"></i> Voir la facture
                     </button>
 
@@ -84,7 +84,7 @@
 
                     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #333; font-weight: bold; font-size: 1.2em; margin-top: 5px;">
                         <span>TOTAL TTC :</span>
-                        <span>{{ order.get_total_cost }} CHF</span>
+                        <span>{{ order.get_total_cost|floatformat:2 }} CHF</span>
                     </div>
                 </div>
 
