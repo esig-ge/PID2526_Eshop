@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="container my-5">
-        <div class="card shadow">
+        <div class="card shadow" id="facture-content">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <h2 class="mb-0">Facture #{{ order.id }}</h2>
                 <span>Date : {{ order.created_at|date:"d/m/Y" }}</span>
