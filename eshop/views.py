@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .forms import RegisterForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 # Create your views here.
 
@@ -368,6 +368,7 @@ def checkout_create_session(request):
     cart = Cart.objects.filter(owner=request.user).order_by("-date_added").first()
     if not cart:
         return redirect("cart_detail")
+    order = Order.objects.create(user=request.user)
 
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     if not cart_items.exists():
@@ -379,7 +380,6 @@ def checkout_create_session(request):
         for item in cart_items:
             # Optionnel : Si tu as un modèle OrderItem, tu peux enregistrer les produits ici :
             # OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-
             line_items.append({
                 "price_data": {
                     "currency": "chf",
@@ -563,3 +563,16 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'eshop/register.html', {'form': form})
+    
+@login_required
+def profile(request):
+    return render(request, 'eshop/profile.html')
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        return redirect('product_list')
+    return render(request, 'eshop/delete_account.html')

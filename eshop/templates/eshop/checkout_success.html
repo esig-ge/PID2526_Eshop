@@ -2,6 +2,7 @@
 {% block content %}
 <div class="container my-5 text-center">
   <h2>Paiement réussi ✅</h2>
+    <a class="btn btn-primary mt-3" href="{% url 'product_list' %}">Retour boutique</a>
     {% if order %}
     <a href="{% url 'facture_demo' order.id %}" class="btn btn-outline-dark">Voir la facture</a>
 {% else %}
@@ -10,4 +11,3 @@
 {% endif %}
 </div>
 {% endblock %}
- a faire le téléchargement
