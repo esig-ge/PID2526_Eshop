@@ -58,7 +58,24 @@
             </div>
         </div>
 
-        <div class="card-footer text-center no-print">
+        <div class="card-footer text-center no-print"> <!-- ajout du téléchargement-->
+            <button onclick="generatePDF()" class="btn btn-secondary">
+                <i class="fa fa-download"></i> Télécharger la facture
+            </button>
+
+            <div id="facture-content">
+                <h1>Facture #{{ order.id }}</h1>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+            <script>
+                function generatePDF() {
+                    const element = document.getElementById('facture-content');
+                    html2pdf().from(element).save('facture.pdf');
+                }
+            </script>
+            <!-- fin du téléchargement-->
             <button onclick="window.print()" class="btn btn-secondary">
                 <i class="fa fa-print"></i> Imprimer cette page
             </button>
