@@ -1,98 +1,118 @@
-
 {% extends "eshop/header.html" %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="card shadow">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Facture #{{ order.id }}</h2>
-            <span>Date : {{ order.created_at|date:"d/m/Y" }}</span>
-        </div>
+    <div class="container my-5">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Facture #{{ order.id }}</h2>
+                <span>Date : {{ order.created_at|date:"d/m/Y" }}</span>
+            </div>
 
-        <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-sm-6">
-                    <h6 class="mb-3">De :</h6>
-                    <div><strong>Boutique PID2526</strong></div>
-                    <div>Genève, Suisse</div>
-                    <div>Email: contact@eshop.ch</div>
-                </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h6 class="mb-3">De :</h6>
+                        <div><strong>Boutique PID2526</strong></div>
+                        <div>Genève, Suisse</div>
+                        <div>Email: contact@eshop.ch</div>
+                    </div>
                 </div>
 
-            <table class="table table-striped">
-                <thead>
+                <table class="table table-striped">
+                    <thead>
                     <tr>
                         <th>Produit</th>
                         <th class="text-center">Quantité</th>
                         <th class="text-end">Prix Unitaire</th>
                         <th class="text-end">Total</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for item in items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td class="text-center">{{ item.quantity }}</td>
-                        <td class="text-end">{{ item.price|floatformat:2 }} CHF</td>
-                        <td class="text-end">{{ item.get_cost }} CHF</td>
-                    </tr>
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">{{ item.price|floatformat:2 }} CHF</td>
+                            <td class="text-end">{{ item.get_cost }} CHF</td>
+                        </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center">Aucun article dans cette facture.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="4" class="text-center">Aucun article dans cette facture.</td>
+                        </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            <div class="row">
-                <div class="col-lg-4 col-sm-5 ms-auto">
-                    <table class="table table-clear">
-                        <tbody>
+                <div class="row">
+                    <div class="col-lg-4 col-sm-5 ms-auto">
+                        <table class="table table-clear">
+                            <tbody>
                             <tr>
                                 <td class="left"><strong>Total à payer</strong></td>
                                 <td class="text-end"><strong>{{ order.get_total_cost }} CHF</strong></td>
                             </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card-footer text-center no-print"> <!-- ajout du téléchargement-->
-            <button onclick="generatePDF()" class="btn btn-secondary">
-                <i class="fa fa-download"></i> Télécharger la facture
-            </button>
+            <div class="card-footer text-center no-print"> <!-- ajout du téléchargement-->
+                <button onclick="generatePDF()" class="btn btn-secondary">
+                    <i class="fa fa-download"></i> Télécharger la facture
+                </button>
 
-            <div id="facture-content">
-                <h1>Facture #{{ order.id }}</h1>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+                <script>
+                    function generatePDF() {
+                        const element = document.getElementById('facture-content');
+                        // Options pour améliorer le rendu du PDF
+                        const opt = {
+                            margin: 10,
+                            filename: 'Facture_{{ order.id }}.pdf',
+                            image: {type: 'jpeg', quality: 0.98},
+                            html2canvas: {scale: 2, useCORS: true}, // Augmente la qualité
+                            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+                        };
+
+                        // On lance la génération
+                        html2pdf().set(opt).from(element).save();
+                    }
+                </script>
+                <!-- fin du téléchargement-->
+                <button onclick="window.print()" class="btn btn-secondary">
+                    <i class="fa fa-print"></i> Imprimer cette page
+                </button>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">Retour à la boutique</a>
             </div>
-
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-            <script>
-                function generatePDF() {
-                    const element = document.getElementById('facture-content');
-                    html2pdf().from(element).save('facture.pdf');
-                }
-            </script>
-            <!-- fin du téléchargement-->
-            <button onclick="window.print()" class="btn btn-secondary">
-                <i class="fa fa-print"></i> Imprimer cette page
-            </button>
-            <a href="{% url 'product_list' %}" class="btn btn-primary">Retour à la boutique</a>
         </div>
     </div>
-</div>
 
-<style>
-    /* Style pour une impression propre sans les éléments inutiles */
-    @media print {
-        .no-print, .btn, .card-footer, header, footer { display: none !important; }
-        .card { border: none !important; box-shadow: none !important; }
-        .container { width: 100%; max-width: 100%; margin: 0; padding: 0; }
-        body { background-color: white !important; }
-    }
-</style>
+    <style>
+        /* Style pour une impression propre sans les éléments inutiles */
+        @media print {
+            .no-print, .btn, .card-footer, header, footer {
+                display: none !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: white !important;
+            }
+        }
+    </style>
 {% endblock %}
 
 
