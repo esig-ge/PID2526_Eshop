@@ -1,7 +1,9 @@
-// ai_search.js
+//Osman Huseynov
+
 
 // 1️⃣ AI search function
 async function searchAI() {
+
     const query = document.getElementById("searchInput-ai").value;
     const resultsContainer = document.getElementById("ai_choice");
 
@@ -53,7 +55,7 @@ async function searchAI() {
         loader.remove();
 
         // check if results are in expected format
-        if (!data.results || !Array.isArray(data.results) || data.results.length === 0 || data.results[0].name === "Erreur de parsing") {
+        if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
             resultsContainer.innerHTML = `<span style="color: #e74c3c;"">Pas de suggestion pour le moment...</span><p>Essayer d'utiliser d'autre mot clé.</p>`;
             return;
         }
@@ -61,11 +63,15 @@ async function searchAI() {
         // simplify data results
         const suggestion = data.results;
 
+        
+
         // ------------------------------------------------------
         // Process the JSON to display product name, price, and link nicely
         // ------------------------------------------------------
         for (const suggestedProduct of suggestion) {
             if (suggestedProduct.name) {
+                // Create form for "Add to Cart" button
+                const cart_add = createAddToCartForm(suggestedProduct.link);
                 const col = document.createElement("div");
                 col.className = "col-12 col-md-4";
 
@@ -111,15 +117,19 @@ async function searchAI() {
                 resume.textContent = suggestedProduct.resume;
 
                 const link = document.createElement("a");
-                link.href = suggestedProduct.link;
+                link.href = "/get/" + suggestedProduct.link;
                 link.target = "_blank";
                 link.className = "btn btn-primary mt-auto";
-                link.textContent = "View Product";
+                link.textContent = "Voir le produit";
+
+                
+
 
                 cardBody.appendChild(title);
                 cardBody.appendChild(price);
                 cardBody.appendChild(resume);
                 cardBody.appendChild(link);
+                cardBody.appendChild(cart_add);
 
                 card.appendChild(cardBody);
                 col.appendChild(card);
@@ -130,7 +140,7 @@ async function searchAI() {
 
     } catch (err) {
         console.error("Error during AI search:", err);
-        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Error connecting to AI...</span>';
+        resultsContainer.innerHTML = '<span style="color: #e74c3c;">Erreur de connection a l´IA...</span>';
     }
 }
 
@@ -152,3 +162,44 @@ document.getElementById("clear-ai-search").addEventListener("click", function ()
     input.value = "";
     results.innerHTML = "";
 });
+
+
+function createAddToCartForm(productId) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `/cart/add/${productId}/`;
+    form.className = "m-0";
+
+    // CSRF token
+    const csrfInput = document.createElement("input");
+    csrfInput.type = "hidden";
+    csrfInput.name = "csrfmiddlewaretoken";
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    form.appendChild(csrfInput);
+
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.className = "btn btn-primary mt-2";
+    button.innerHTML = '<i class="fa fa-cart-plus"></i> Panier';
+    form.appendChild(button);
+
+    // 🔥 Empêcher la redirection
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfInput.value
+            }
+        });
+
+        if (response.ok) {
+            button.innerHTML = "✔ Ajouté";
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-secondary");
+        }
+    });
+
+    return form;
+}
