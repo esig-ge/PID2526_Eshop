@@ -370,7 +370,14 @@ def checkout_create_session(request):
     if not info:
         return redirect("checkout_info")
 
-    order = Order.objects.create(user=request.user)
+    order = Order.objects.create(
+        user=request.user,
+        first_name=info.get("first_name"),
+        last_name=info.get("last_name"),
+        address=info.get("address_line1"),
+        postal_code=info.get("postal_code"),
+        city=info.get("city")
+    )
 
     cart_items = CartItem.objects.filter(cart=cart).select_related("product")
     line_items = []
