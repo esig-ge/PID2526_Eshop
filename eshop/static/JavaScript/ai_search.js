@@ -183,7 +183,7 @@ function createAddToCartForm(productId) {
     button.innerHTML = '<i class="fa fa-cart-plus"></i> Panier';
     form.appendChild(button);
 
-    // 🔥 Empêcher la redirection
+    // stop redirecting
     form.addEventListener("submit", async function(e) {
         e.preventDefault();
 
@@ -197,7 +197,7 @@ function createAddToCartForm(productId) {
         if (response.ok) {
             button.innerHTML = "✔ Ajouté";
             button.classList.remove("btn-primary");
-            button.classList.add("btn-secondary");
+            button.classList.add("btn btn-outline-light");
         }
     });
 

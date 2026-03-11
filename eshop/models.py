@@ -56,12 +56,12 @@ class CartItem(models.Model):
     
 
 class AiSettings(models.Model):
-    aiModel = models.CharField(max_length=100)
-    prompt = models.CharField(max_length=256)
-
+    aiModel = models.CharField(max_length=100, default="gemma3:27b")
+    temperature = models.FloatField(default=0.7)
+    num_predict = models.IntegerField(default=500)
 
     def sub_total(self):
-        return self.aiModel + self.prompt
+        return f"{self.aiModel} {self.temperature} {self.num_predict}"
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
