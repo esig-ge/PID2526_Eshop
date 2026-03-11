@@ -14,7 +14,7 @@
                     <h4 class="fw-semibold text-dark mb-3">Êtes-vous sûr ?</h4>
                     
                     <p class="text-danger mb-4">
-                        <strong>{{ user.username }}</strong>, la suppression de votre compte est définitive et irréversible. Toutes vos données seront effacées.
+                        <strong>{{ user.email }}</strong>, la suppression de votre compte est définitive et irréversible. Toutes vos données seront effacées.
                     </p>
                     
                     <form method="POST" action="{% url 'delete_account' %}">
