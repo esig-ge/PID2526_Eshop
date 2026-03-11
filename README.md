@@ -19,6 +19,14 @@ Run the script to add products:
 
     python populate_eshop.py
 
+## Testing
+
+To run the automated test suite for the project, use the following command:
+
+    python manage.py test eshop
+
+This will execute the unit tests located in the `eshop/tests/` directory, which cover models, views, and forms.
+
 ## Admin Panel Setup
 
 To access the `/admin` interface, you need to create a superuser account. Run the following command and follow the prompts to set your username and password:
