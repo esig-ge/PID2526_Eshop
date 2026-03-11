@@ -375,7 +375,6 @@ def checkout_create_session(request):
         first_name=info.get("first_name"),
         last_name=info.get("last_name"),
         address=info.get("address_line1"),
-        address=info.get("address_line2"),
         postal_code=info.get("postal_code"),
         city=info.get("city")
     )
