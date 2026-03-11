@@ -1,65 +1,146 @@
-document.getElementById("searchInput").addEventListener("input", async function () {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const query = this.value.trim();
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+    const clearButton = document.getElementById("clearNormalSearch");
     const resultsContainer = document.getElementById("results");
+    const liveResults = document.getElementById("liveResults");
+    let debounce;
 
-    resultsContainer.innerHTML = "";
+    // ==============================
+    // LIVE SEARCH (suggestions dynamiques)
+    // ==============================
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim();
+        liveResults.innerHTML = "";
+        liveResults.style.display = "none";
+        if (query.length < 1) return; // on commence dès le 1er caractère
 
-    if (query.length < 1) {
-        return;   // on sort directement, pas besoin de créer un <li> vide
-    }
+        clearTimeout(debounce);
+        debounce = setTimeout(async () => {
+            try {
+                const res = await fetch(`/product_search_result?q=${encodeURIComponent(query)}`);
+                if (!res.ok) throw new Error("Server error");
+                const data = await res.json();
+                const products = Array.isArray(data) ? data : (data.results || []);
+                if (!products.length) return;
 
-    try {
-        const response = await fetch(`/ajax_search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error("Erreur serveur");
+                // afficher max 5 produits
+                products.slice(0, 5).forEach(item => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+                    li.style.cursor = "pointer";
+                    li.innerHTML = `
+                        <span class="fw-bold">${item.name || "Produit sans nom"}</span>
+                        <span class="badge bg-success rounded-pill">${item.price !== undefined ? item.price + " CHF" : "Prix indisponible"}</span>
+                    `;
+                    li.addEventListener("click", () => {
+                        searchInput.value = item.name;
+                        liveResults.innerHTML = "";
+                        liveResults.style.display = "none";
+                        fullSearch();
+                    });
+                    liveResults.appendChild(li);
+                });
 
-        const data = await response.json();
+                liveResults.style.display = "block";
 
-        if (data.results.length === 0) {
-            const div = document.createElement("div");
-            div.className = "alert alert-warning mt-2";
-            div.textContent = "Aucun produit trouvé";
-            resultsContainer.appendChild(div);
-            return;
+            } catch (err) {
+                console.error(err);
+            }
+        }, 200); // debounce léger pour fluidité
+    });
+
+    // ==============================
+    // FULL SEARCH (liste complète)
+    // ==============================
+    async function fullSearch() {
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        liveResults.innerHTML = "";
+        liveResults.style.display = "none";
+        resultsContainer.innerHTML = "<p class='text-center mt-2'>Chargement...</p>";
+
+        try {
+            const res = await fetch(`/product_search_result/?q=${encodeURIComponent(query)}`);
+            if (!res.ok) throw new Error("Server error");
+            const data = await res.json();
+            const products = Array.isArray(data) ? data : (data.results || []);
+
+            resultsContainer.innerHTML = "";
+            if (!products.length) {
+                resultsContainer.innerHTML = "<p class='text-center mt-2'>Aucun produit trouvé</p>";
+                return;
+            }
+
+            products.forEach(product => {
+                const col = document.createElement("div");
+                col.className = "col";
+                col.innerHTML = `
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="${product.image || '/static/images/no-image.png'}" class="card-img-top" style="height:250px; object-fit:cover;" alt="${product.name}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-3">
+                            <a href="/product/${product.id}" class="text-decoration-none text-dark fw-bold">${product.name}</a>
+                        </h5>
+                        <div class="mt-auto">
+                            ${product.availability ? `
+                            <p class="fs-4 text-success fw-bold mb-2">${product.price} CHF</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">En stock</span>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm compare-btn" data-product-id="${product.id}">Comparer</button>
+                                    <form action="/cart_add/${product.id}" method="post" class="m-0">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRF()}">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-cart-plus"></i> Panier
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>` :
+                            `<p class="text-muted fst-italic mb-2">Victime de son succès...</p>
+                             <span class="badge bg-danger">Rupture</span>`}
+                        </div>
+                    </div>
+                </div>`;
+                resultsContainer.appendChild(col);
+            });
+
+        } catch (err) {
+            console.error(err);
+            resultsContainer.innerHTML = "<p class='text-danger text-center mt-2'>Erreur lors du chargement des produits.</p>";
         }
-
-        // Use Bootstrap list-group for pretty display
-        const listGroup = document.createElement("div");
-        listGroup.className = "list-group mt-2";
-
-        data.results.forEach(item => {
-            const a = document.createElement("a");
-            a.href = `/get/${item.id}/`;
-            a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
-            a.style.textDecoration = "none";
-
-            // Protection contre undefined
-            const name = item.name || "Produit sans nom";
-            const price = item.price !== undefined ? item.price : "Prix indisponible";
-
-            a.innerHTML = `
-                <span class="fw-bold">${name}</span>
-                <span class="badge bg-success rounded-pill">${price} €</span>
-            `;
-
-            listGroup.appendChild(a);
-        });
-
-        resultsContainer.appendChild(listGroup);
-
-    } catch (err) {
-        console.error(err);
-        const div = document.createElement("div");
-        div.className = "alert alert-danger mt-2";
-        div.textContent = "Erreur de recherche";
-        resultsContainer.appendChild(div);
     }
-});
 
-// Clear normal search
-document.getElementById("clearNormalSearch").addEventListener("click", function () {
-    const input = document.getElementById("searchInput");
-    const results = document.getElementById("results");
-    input.value = "";
-    results.innerHTML = "";
+    // ==============================
+    // ÉVÉNEMENTS
+    // ==============================
+    if (searchButton) searchButton.addEventListener("click", fullSearch);
+    searchInput.addEventListener("keyup", (e) => { if (e.key === "Enter") fullSearch(); });
+
+    if (clearButton) clearButton.addEventListener("click", () => {
+        searchInput.value = "";
+        resultsContainer.innerHTML = "";
+        liveResults.innerHTML = "";
+        liveResults.style.display = "none";
+    });
+
+    // ==============================
+    // CSRF helper
+    // ==============================
+    function getCSRF() {
+        const match = document.cookie.match(/csrftoken=([\w-]+)/);
+        return match ? match[1] : "";
+    }
+
+    // ==============================
+    // Clic en dehors pour fermer live search
+    // ==============================
+    document.addEventListener("click", (e) => {
+        if (!searchInput.contains(e.target) && !liveResults.contains(e.target)) {
+            liveResults.style.display = "none";
+        }
+    });
+
 });
