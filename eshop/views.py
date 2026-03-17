@@ -531,41 +531,48 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
-
 def product_list(request):
+    """
+    Display the list of products with filtering, searching and sorting capabilities.
+    """
     products = Product.objects.all()
-    query = request.GET.get('q')
-    category = request.GET.get('cat')
-    sort_order = request.GET.get('tri')
-    in_stock = request.GET.get('stock')
 
-    # 3. Filtrage par mot-clé (Recherche intelligente)
+    # Get query parameters
+    query = request.GET.get('q', '').strip()
+    sort_order = request.GET.get('tri')
+    dispo = request.GET.get('dispo')
+
+    # 1. Keyword search (multi-word support + distinct results)
     if query:
         words = query.split()
         search_filter = Q()
         for word in words:
-            search_filter &= Q(name__icontains=word) | Q(description__icontains=word)
+            search_filter &= (
+                Q(name__icontains=word) |
+                Q(description__icontains=word)
+                )
         products = products.filter(search_filter).distinct()
-    # 4. Filtrage par catégorie
-    if category:
-        products = products.filter(
-            Q(name__icontains=category) | Q(description__icontains=category))  # 5. Filtrage par stock
-    # 5. Filtrage par stock
-    show_dispo = request.GET.get('dispo')
-    if show_dispo == 'on':
+    
+    # 3. Availability filter (in stock only)
+    if dispo == 'on':
         products = products.filter(availability=True)
-    # 6. Tri par prix (Croissant / Décroissant)
+
+    # 4. Price sorting
     if sort_order == 'asc':
         products = products.order_by('price')
     elif sort_order == 'desc':
         products = products.order_by('-price')
+    # default ordering = database default (usually id or created_at)
 
-#     if in_stock == 'true':
-    #         products = products.filter(availability=True)
-    #     elif in_stock == 'false':  # Utilise elif et sors-le du premier bloc if
-    #         products = products.filter(availability=False)
+    # Prepare context for template (helps preserve form state)
+    context = {
+        'products': products,
+        'tri': sort_order,
+        'query': query,
+        'dispo': dispo,
+    }
 
-    return render(request, 'eshop/product_list.html', {'products': products,'tri': sort_order})
+    return render(request, 'eshop/product_list.html', context)
 
 
 def facture_demo(request, order_id):
