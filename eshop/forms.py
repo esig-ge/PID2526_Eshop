@@ -21,7 +21,12 @@ class ProductForm(forms.ModelForm):
 class PostReview(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ('user_mail', 'review')
+        fields = ('user_mail', 'rating', 'review')
+        widgets = {
+            'user_mail': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Votre adresse email'}),
+            'rating': forms.Select(choices=[(i, f"{i} étoile{'s' if i>1 else ''}") for i in range(5, 0, -1)], attrs={'class': 'form-select'}),
+            'review': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Votre avis sur ce produit...'}),
+        }
 
     # Validation du champ review pour interdire les numéros de téléphone
     def clean_review(self):

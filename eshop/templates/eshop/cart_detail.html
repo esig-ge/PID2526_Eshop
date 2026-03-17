@@ -1,6 +1,19 @@
 {% extends "eshop/header.html" %}
 
 {% block content %}
+<style>
+    /* Masquer les flèches du champ number */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        appearance: none;
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+        appearance: textfield;
+    }
+</style>
 <div class="container my-5">
     <h2 class="mb-4">Votre Panier</h2>
     <table class="table table-striped table-hover">
@@ -17,13 +30,41 @@
             {% for item in cart_items %}
             <tr>
                 <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.product.price }} CHF</td>
-                <td>{{ item.sub_total }} CHF</td>
+                <td>
+                    <form action="{% url 'cart_update' item.product.id %}" method="post" class="d-inline-block">
+                        {% csrf_token %}
+                        {% if item.quantity < 5 %}
+                        <div class="d-flex align-items-center">
+                            <select class="form-select form-select-sm" style="min-width: 65px;" 
+                                    onchange="if(this.value==='5+'){ this.classList.add('d-none'); document.getElementById('input-qty-{{ item.product.id }}').classList.remove('d-none'); var inp = document.getElementById('qty-val-{{ item.product.id }}'); inp.value = 5; inp.focus(); } else { document.getElementById('qty-val-{{ item.product.id }}').value = this.value; this.form.submit(); }">
+                                <option value="0" {% if item.quantity == 0 %}selected{% endif %}>0</option>
+                                <option value="1" {% if item.quantity == 1 %}selected{% endif %}>1</option>
+                                <option value="2" {% if item.quantity == 2 %}selected{% endif %}>2</option>
+                                <option value="3" {% if item.quantity == 3 %}selected{% endif %}>3</option>
+                                <option value="4" {% if item.quantity == 4 %}selected{% endif %}>4</option>
+                                <option value="5+">5+</option>
+                            </select>
+                            <div id="input-qty-{{ item.product.id }}" class="d-none" style="width: 70px;">
+                                <input type="number" id="qty-val-{{ item.product.id }}" name="quantity" class="form-control form-control-sm text-center" value="{{ item.quantity }}" min="1" 
+                                       onblur="this.form.submit()" 
+                                       onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.form.submit(); }">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div style="width: 70px;">
+                            <input type="number" name="quantity" class="form-control form-control-sm text-center" value="{{ item.quantity }}" min="1" 
+                                   onblur="this.form.submit()" 
+                                   onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.form.submit(); }">
+                        </div>
+                        {% endif %}
+                    </form>
+                </td>
+                <td>{{ item.product.price|floatformat:2 }} CHF</td>
+                <td>{{ item.sub_total|floatformat:2 }} CHF</td>
                 <td>
                     <form action="{% url 'cart_remove' item.product.id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        <button type="submit" class="btn btn-sm">Supprimer</button>
                     </form>
                 </td>
             </tr>

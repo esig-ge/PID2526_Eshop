@@ -59,14 +59,20 @@ def product_details(request, pk):
 
 # Generated via AI
     if request.method == 'POST':
-        form = PostReview(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.product = product
-            review.save()
-            return redirect('product_details', pk=product.pk)  # éviter double POST redireciton !!!
+        if request.user.is_authenticated:
+            form = PostReview(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.product = product
+                review.save()
+                return redirect('product_details', pk=product.pk)  # éviter double POST redireciton !!!
+        else:
+            return redirect('login')
     else:
-        form = PostReview()
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data['user_mail'] = request.user.email
+        form = PostReview(initial=initial_data)
 
     return render(request, 'eshop/product_details.html', {
         'product': product,
@@ -150,13 +156,29 @@ def cart_remove(request, product_id):
     
     try:
         cart_item = CartItem.objects.get(product=product, cart=cart)
-        if cart_item.quantity > 1:
-            cart_item.quantity -= 1
+        cart_item.delete()
+    except CartItem.DoesNotExist:
+        pass # Le produit n'était pas dans le panier, on ne fait rien
+
+    return redirect('cart_detail')
+
+@login_required
+@require_POST
+def cart_update(request, product_id):
+    cart = get_object_or_404(Cart, owner=request.user)
+    product = get_object_or_404(Product, id=product_id)
+    
+    try:
+        cart_item = CartItem.objects.get(product=product, cart=cart)
+        quantity = int(request.POST.get('quantity', 0))
+        
+        if quantity > 0:
+            cart_item.quantity = quantity
             cart_item.save()
         else:
             cart_item.delete()
-    except CartItem.DoesNotExist:
-        pass # Le produit n'était pas dans le panier, on ne fait rien
+    except (CartItem.DoesNotExist, ValueError):
+        pass # Le produit n'était pas dans le panier ou quantité invalide, on ne fait rien
 
     return redirect('cart_detail')
 
