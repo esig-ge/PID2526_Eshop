@@ -90,7 +90,7 @@ class CartItem(models.Model):
 class AiSettings(models.Model):
     aiModel = models.CharField(default="gemma3:27b",max_length=100)
     temperature = models.FloatField(default=0.7, max_length=10)
-    num_predict = models.IntegerField(default=500, max_length=1000)
+    num_predict = models.IntegerField(default=500)
 
     def sub_total(self):
         return f"{self.aiModel} {self.temperature} {self.num_predict}"

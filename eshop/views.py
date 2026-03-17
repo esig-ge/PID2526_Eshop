@@ -643,7 +643,7 @@ def cart_detail(request):
 def get_ai_settings(request):
     settings = AiSettings.objects.first()
     if not settings:
-        return JsonResponse({"error": "AISettings not found"}, status=404)
+        return None
     
     return {
         "model": settings.aiModel,
