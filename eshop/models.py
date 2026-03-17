@@ -62,6 +62,7 @@ class Review(models.Model):
     user_mail = models.EmailField()
     # blank=true pour ne pas obliger une entrée
     review = models.TextField(blank=True)
+    rating = models.IntegerField(default=5)
     publish_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

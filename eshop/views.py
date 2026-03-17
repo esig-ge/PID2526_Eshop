@@ -59,14 +59,20 @@ def product_details(request, pk):
 
 # Generated via AI
     if request.method == 'POST':
-        form = PostReview(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.product = product
-            review.save()
-            return redirect('product_details', pk=product.pk)  # éviter double POST redireciton !!!
+        if request.user.is_authenticated:
+            form = PostReview(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.product = product
+                review.save()
+                return redirect('product_details', pk=product.pk)  # éviter double POST redireciton !!!
+        else:
+            return redirect('login')
     else:
-        form = PostReview()
+        initial_data = {}
+        if request.user.is_authenticated:
+            initial_data['user_mail'] = request.user.email
+        form = PostReview(initial=initial_data)
 
     return render(request, 'eshop/product_details.html', {
         'product': product,
