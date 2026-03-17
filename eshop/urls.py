@@ -34,6 +34,7 @@ urlpatterns = [
     path('cart/', views.cart_detail, name='cart_detail'),
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
+    path('cart/update/<int:product_id>/', views.cart_update, name='cart_update'),
     path("ai_search", views.ai_search, name="ai_search"),
     path('comparer/', views.comparer, name='comparer'),
     path('comparer/add/<int:pk>/', views.comparer_add, name='comparer_add'),
