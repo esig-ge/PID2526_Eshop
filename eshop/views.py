@@ -15,9 +15,9 @@ import stripe
 import re
 from eshop.models import Order
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
-from .forms import RegisterForm
+from .forms import RegisterForm, AiSettingsForm
 from django.contrib.auth import login, logout
 
 # Create your views here.
@@ -26,6 +26,27 @@ from django.contrib.auth import login, logout
 def get_all_products():
     products = Product.objects.all()
     return products
+
+def get_all_products_json(user_query):
+    query = user_query.GET.get("q", "")
+    products = Product.objects.all()
+
+    if query:
+        keywords = query.split()
+
+        for word in keywords:
+            products = products.filter(
+                Q(name__icontains=word) |
+                Q(description__icontains=word)
+            )
+
+    data = list(products.values())
+    return JsonResponse(data, safe=False)
+
+def view_products(request):
+    return render(request,"eshop/product_search_result.html")
+
+
 
 
 def product_list(request):
@@ -167,7 +188,6 @@ def cart_detail(request):
         'cart': cart,
         'cart_items': cart_items,
         'total': total  
-        
     })
 
 
@@ -197,7 +217,7 @@ def ai_search(request):
         # Suppose get_all_products() retourne Product.objects.all()
         products_list = list(get_all_products().values())
         catalog = json.dumps(products_list)
-        ai_data = get_ai_settings()
+        ai_data = get_ai_settings(request)
 
         # Ollama API call
         response = client.chat(
@@ -271,7 +291,7 @@ def ai_search(request):
                 }
             ],
             options={
-                "temperature": ai_data["temparature"], # Temperature controls randomness/creativity in the model’s output
+                "temperature": ai_data["temperature"], # Temperature controls randomness/creativity in the model’s output
                 "num_predict": ai_data["num_predict"]  # LIMITS THE AI CHAR RESPONSE, DONT WANT TO HAVE A RESPONSE TOO LONG
             }
         )
@@ -611,22 +631,37 @@ def get_ai_settings(request):
     settings = AiSettings.objects.first()
     if not settings:
         return JsonResponse({"error": "AISettings not found"}, status=404)
-
-    data = {
+    
+    return {
         "model": settings.aiModel,
         "temperature": settings.temperature,
         "num_predict": settings.num_predict,
-        }
-    return JsonResponse(data)
+    }
+
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def ai_settings(request):
+    # On récupère l'unique instance (ou None)
+    settings = AiSettings.objects.first()
+    
     if request.method == "POST":
-        form = AiSettings(request.POST)
+        if settings:
+            form = AiSettingsForm(request.POST, instance=settings)
+        else:
+            form = AiSettingsForm(request.POST)
+            
         if form.is_valid():
-            form.save()
+            form.save()   
+            return redirect('ai_settings')
+            
     else:
-        form = AiSettings()
+        # GET
+        if settings:
+            form = AiSettingsForm(instance=settings)
+        else:
+            form = AiSettingsForm()   # valeurs par défaut du modèle
+    
     return render(request, "eshop/ai_settings.html", {'form': form})
 
 def register(request):

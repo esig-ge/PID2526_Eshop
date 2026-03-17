@@ -6,39 +6,49 @@
 
     <form method="post" class="card p-4 shadow-sm bg-light rounded">
         {% csrf_token %}
-
-        <!-- Champ modèle -->
+    
         <div class="mb-3">
             <label for="{{ form.aiModel.id_for_label }}" class="form-label fw-bold">
                 Modèle
             </label>
             {{ form.aiModel }}
+            <div class="form-text text-muted">
+                Exemple : gemma3:27b, llama3.1:8b, etc.
+            </div>
         </div>
-        
+    
         <div class="mb-3">
             <label for="{{ form.temperature.id_for_label }}" class="form-label fw-bold">
-                Temperature (Taux de précision de la réponse)
+                Température (créativité vs précision)
             </label>
             {{ form.temperature }}
-        
-            <br>
-        
+            <div class="form-text text-muted">
+                Valeur typique : 0.0 (très déterministe) → 1.0 (très créatif, a éviter)
+            </div>
+        </div>
+    
+        <div class="mb-3">
             <label for="{{ form.num_predict.id_for_label }}" class="form-label fw-bold">
-                Max. de caractères
+                Nombre max de tokens
             </label>
             {{ form.num_predict }}
+            <div class="form-text text-muted">
+                500–4096 selon le modèle
+            </div>
         </div>
-
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    
+        <div class="d-flex justify-content-start">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
     </form>
 
     <!-- Section info recommandée -->
     <div class="mt-4 p-3 bg-danger text-white rounded shadow-sm">
         <h5>Paramètres recommandés :</h5>
         <ul class="mb-1">
-            <li><strong>Modèle :</strong>{{ ai_data.aiModel }}</li>
-            <li><strong>Temperature :</strong></li>
-            <li><strong>Limite de caractères :</strong></li>
+            <li><strong>Modèle :</strong> gemma3:27b</li>
+            <li><strong>Temperature :</strong> 0.7</li>
+            <li><strong>Limite de caractères :</strong> 500</li>
         </ul>
     </div>
 </div>
