@@ -41,7 +41,7 @@
 
           <div class="col-md-6">
             <label class="form-label fw-bold">Trier par</label>
-            <select name="tri" class="form-select">
+            <select name="tri" class="form-select mr-5">
               <option value="">Pertinence</option>
               <option value="asc"  {% if request.GET.tri == 'asc'  %}selected{% endif %}>Prix : du moins cher</option>
               <option value="desc" {% if request.GET.tri == 'desc' %}selected{% endif %}>Prix : du plus cher</option>
@@ -58,11 +58,12 @@
             </div>
           </div>
 
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary px-5">Appliquer les filtres</button>
+          </div>
+
         </div>
 
-        <div class="mt-4 text-end">
-          <button type="submit" class="btn btn-primary px-5">Appliquer les filtres</button>
-        </div>
 
       </form>
     </div>
@@ -70,7 +71,7 @@
 
   <!-- Lien Nos produits -->
   <div class="text-center mb-4">
-    <a href="{% url 'our_products' %}" class="text-muted">Nos produits</a>
+    <p class="text-muted">Nos produits</p>
   </div>
 
   <!-- Animate.css -->

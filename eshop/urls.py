@@ -4,7 +4,6 @@ from eshop import views
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
-    path('product_search_result/', views.get_all_products_json, name='product_search_result'),
     path('our_products/', views.view_products, name='our_products'),
     path('get/<int:pk>/', views.product_details, name='product_details'),
     path('register/', views.register, name='register'),
